@@ -2,7 +2,7 @@
 
 # Overview
 
-`drake_render_gltf_blender` is an implementation of the Drake
+`drake-blender` is an implementation of the Drake
 [glTF Render Client-Server API](https://drake.mit.edu/doxygen_cxx/group__render__engine__gltf__client__server__api.html)
 atop
 [Blender](https://www.blender.org/).
