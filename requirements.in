@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: BSD-2-Clause
+
+bpy
+flask
+pycodestyle
+
+# Blender's glTF loading is incompatible with numpy >= 1.24.
+numpy < 1.24

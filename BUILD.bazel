@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: BSD-2-Clause
+
+load("@rules_python//python:defs.bzl", "py_binary")
+load("@rules_python//python:pip.bzl", "compile_pip_requirements")
+load(":defs.bzl", "pycodestyle_test")
+
+exports_files(["server.py"])
+
+py_binary(
+    name = "server",
+    srcs = ["server.py"],
+    deps = [
+        "@requirements_bpy//:pkg",
+        "@requirements_flask//:pkg",
+    ],
+)
+
+pycodestyle_test(
+    name = "pycodestyle_test",
+    srcs = [
+        "bazel",
+        "server.py",
+    ],
+)
+
+compile_pip_requirements(
+    name = "requirements",
+    requirements_in = "requirements.in",
+    requirements_txt = "requirements.txt",
+    tags = ["manual"],
+)
