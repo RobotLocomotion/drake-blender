@@ -1,0 +1,64 @@
+#!/usr/bin/python3
+# SPDX-License-Identifier: BSD-2-Clause
+
+"""If you don't have Bazel installed on your $PATH, you can use this program
+to run a copy of Bazel that's automatically downloaded from the internet, e.g.:
+
+ ./bazel test //...
+
+If you have Bazel or Bazelisk already on your $PATH, you can run that instead,
+e.g.:
+
+ bazel test //...
+"""
+
+import hashlib
+import os
+from pathlib import Path
+import sys
+import urllib.request as request
+
+
+def _fetch_bazelisk():
+    # Specify the file we want to fetch.
+    url = "https://raw.githubusercontent.com/bazelbuild/bazelisk/v1.16.0/bazelisk.py"  # noqa
+    sha256 = "1f6d76d023ddd5f1625f34d934418e7334a267318d084f31be09df8a8835ed16"
+
+    # Create a home for it.
+    dot_bazel = Path(__file__).resolve().with_name(".bazel")
+    dot_bazel.mkdir(exist_ok=True)
+    bazelisk = dot_bazel / "bazelisk"
+
+    # Check if we've already fetched it.
+    try:
+        hasher = hashlib.sha256()
+        with open(bazelisk, "rb") as f:
+            hasher.update(f.read())
+        if hasher.hexdigest() == sha256:
+            return bazelisk
+    except IOError:
+        pass
+
+    # Fetch it.
+    print(f"Downloading {url} ...")
+    with request.urlopen(url=url, timeout=10) as response:
+        content = response.read()
+    hasher = hashlib.sha256()
+    hasher.update(content)
+    digest = hasher.hexdigest()
+    if digest != sha256:
+        raise RuntimeError(f"Got wrong sha256={sha256}")
+    with open(bazelisk, "wb") as f:
+        f.write(content)
+    bazelisk.chmod(0o755)
+
+    return bazelisk
+
+
+def _main():
+    bazelisk = _fetch_bazelisk()
+    os.execv(bazelisk, [str(bazelisk)] + sys.argv[1:])
+
+
+if __name__ == "__main__":
+    _main()
