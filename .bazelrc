@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: BSD-2-Clause
+
+common --symlink_prefix=.bazel/
+build --test_output=errors
+build --test_summary=terse
