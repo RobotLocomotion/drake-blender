@@ -1,0 +1,27 @@
+# SPDX-License-Identifier: BSD-2-Clause
+
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  bazel_test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v3
+        with:
+          path: "/home/runner/.cache/ci"
+          key: bazel
+      - name: Report cache size
+        run: du -hs $(readlink -f /home/runner/.cache/ci)
+      - name: Configure Bazel for CI
+        run: ln -s .github/ci.bazelrc ./user.bazelrc
+      - name: Bazel Test
+        run: bazel test //...
