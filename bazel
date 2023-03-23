@@ -55,8 +55,20 @@ def _fetch_bazelisk():
     return bazelisk
 
 
+def _apply_bazeliskrc():
+    # The Python version of bazelisk doesn't support this dotfile yet. Sigh.
+    # We'll sherpa the settings manually via the environment.
+    with open(Path(__file__).resolve().with_name(".bazeliskrc")) as f:
+        for line in f.readlines():
+            line = line.split('#', maxsplit=1)[0].strip()
+            if line:
+                name, value = line.split('=', maxsplit=1)
+                os.environ[name] = value
+
+
 def _main():
     bazelisk = _fetch_bazelisk()
+    _apply_bazeliskrc()
     os.execv(bazelisk, [str(bazelisk)] + sys.argv[1:])
 
 
