@@ -9,6 +9,7 @@ exports_files(["server.py"])
 py_binary(
     name = "server",
     srcs = ["server.py"],
+    visibility = ["//visibility:public"],
     deps = [
         "@requirements_bpy//:pkg",
         "@requirements_flask//:pkg",
