@@ -16,8 +16,8 @@ py_repositories()
 load("@rules_python//python:pip.bzl", "pip_parse")
 
 pip_parse(
-   name = "requirements",
-   requirements_lock = "//:requirements.txt",
+    name = "requirements",
+    requirements_lock = "//:requirements.txt",
 )
 
 load("@requirements//:requirements.bzl", "install_deps")
