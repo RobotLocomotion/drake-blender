@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
-load("@rules_python//python:defs.bzl", "py_binary")
+load("@rules_python//python:defs.bzl", "py_binary", "py_test")
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
 load(":defs.bzl", "pycodestyle_test")
 
@@ -14,6 +14,12 @@ py_binary(
         "@requirements_bpy//:pkg",
         "@requirements_flask//:pkg",
     ],
+)
+
+py_test(
+    name = "server_test",
+    srcs = ["server_test.py"],
+    data = [":server"],
 )
 
 pycodestyle_test(
