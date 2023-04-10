@@ -7,6 +7,9 @@
 atop
 [Blender](https://www.blender.org/).
 
+**This repository is currently a WORK IN PROGRESS and still has many bugs.
+Please check back later once the code has been battle-tested.**
+
 ## Compatibility
 
 This software is only tested on Ubuntu 22.04 "Jammy", but should probably
