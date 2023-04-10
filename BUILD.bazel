@@ -27,6 +27,7 @@ pycodestyle_test(
     srcs = [
         "bazel",
         "server.py",
+        "//examples:ball_bin.py",
     ],
 )
 
