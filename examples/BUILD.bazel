@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: MIT-0
+
+load("@rules_python//python:defs.bzl", "py_binary", "py_test")
+load("@rules_python//python:pip.bzl", "compile_pip_requirements")
+load("//:defs.bzl", "pycodestyle_test")
+
+exports_files(glob(["**"]))
+
+py_binary(
+    name = "ball_bin",
+    srcs = ["ball_bin.py"],
+    deps = [
+        "@examples_requirements_drake//:pkg",
+        "@examples_requirements_tqdm//:pkg",
+    ],
+    data = [
+        ":ball_bin.yaml",
+        "//:server",
+        "@bazel_tools//tools/python/runfiles",
+    ],
+)
+
+py_test(
+    name = "ball_bin_test",
+    srcs = ["test/ball_bin_test.py"],
+    data = [":ball_bin"],
+)
+
+pycodestyle_test(
+    name = "pycodestyle_test",
+    srcs = [
+        "ball_bin.py",
+        "test/ball_bin_test.py",
+    ],
+)
+
+compile_pip_requirements(
+    name = "requirements",
+    requirements_in = "requirements.in",
+    requirements_txt = "requirements.txt",
+    tags = ["manual"],
+)
