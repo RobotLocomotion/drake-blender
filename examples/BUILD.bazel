@@ -24,10 +24,6 @@ py_test(
     name = "ball_bin_test",
     srcs = ["test/ball_bin_test.py"],
     data = [":ball_bin"],
-    tags = [
-        # TODO(#11) Enable this test in CI once we have a display server.
-        "manual",
-    ],
 )
 
 pycodestyle_test(
