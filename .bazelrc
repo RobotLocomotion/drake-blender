@@ -5,5 +5,8 @@ common --keep_going=yes
 build --test_output=errors
 build --test_summary=terse
 
+# Inject DISPLAY into test runner environment for tests that use X.
+build --test_env=DISPLAY
+
 # Try to import user-specific configuration local to workspace.
 try-import %workspace%/user.bazelrc
