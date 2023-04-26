@@ -13,6 +13,7 @@ py_binary(
         ":ball_bin.yaml",
         "//:server",
         "@bazel_tools//tools/python/runfiles",
+        "@cube_diorama//:cube_diorama.blend",
     ],
     deps = [
         "@examples_requirements_drake//:pkg",

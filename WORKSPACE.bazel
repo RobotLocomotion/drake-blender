@@ -32,3 +32,17 @@ pip_parse(
 load("@examples_requirements//:requirements.bzl", "install_deps")
 
 install_deps()
+
+# This is sample artwork from https://www.blender.org/download/demo-files/,
+# licensed under CC0-1.0.
+http_archive(
+    name = "cube_diorama",
+    build_file_content = "exports_files(glob(['**']))",
+    sha256 = "b76732089f6e41d3543a986875963eb13742dde4f68021974f25564b727dde6a",
+    strip_prefix = "cube_diorama",
+    urls = [
+        "https://mirrors.ocf.berkeley.edu/blender/demo/bundles/bundles-3.0/asset-demo-bundle-3.0-cube-diorama.zip",
+        "https://mirror.clarkson.edu/blender/demo/bundles/bundles-3.0/asset-demo-bundle-3.0-cube-diorama.zip",
+    ],
+)
+
