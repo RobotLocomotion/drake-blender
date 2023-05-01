@@ -12,9 +12,9 @@ py_binary(
     data = [
         ":ball_bin.yaml",
         "//:server",
-        "@bazel_tools//tools/python/runfiles",
     ],
     deps = [
+        "@bazel_tools//tools/python/runfiles",
         "@examples_requirements_drake//:pkg",
         "@examples_requirements_tqdm//:pkg",
     ],

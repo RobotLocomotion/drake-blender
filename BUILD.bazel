@@ -24,11 +24,18 @@ py_library(
 py_test(
     name = "server_test",
     srcs = ["test/server_test.py"],
-    data = [":server"],
+    data = [
+        ":server",
+        "test/depth.gltf",
+        "test/depth.png",
+        "test/label.gltf",
+        "test/label.png",
+    ],
     deps = [
         ":unittest_path_cleaner",
         "@requirements_numpy//:pkg",
-    ],
+        "@requirements_requests//:pkg",
+    ]
 )
 
 pycodestyle_test(
