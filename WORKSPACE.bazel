@@ -25,6 +25,15 @@ load("@requirements//:requirements.bzl", "install_deps")
 install_deps()
 
 pip_parse(
+    name = "test_requirements",
+    requirements_lock = "//:test/requirements.txt",
+)
+
+load("@test_requirements//:requirements.bzl", "install_deps")
+
+install_deps()
+
+pip_parse(
     name = "examples_requirements",
     requirements_lock = "//examples:requirements.txt",
 )
