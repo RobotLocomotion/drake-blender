@@ -24,10 +24,19 @@ py_library(
 py_test(
     name = "server_test",
     srcs = ["test/server_test.py"],
-    data = [":server"],
+    data = [
+        ":server",
+        "test/color.png",
+        "test/depth.png",
+        "test/label.png",
+        "test/scene.gltf",
+        "test/scene_label.gltf",
+    ],
     deps = [
         ":unittest_path_cleaner",
-        "@requirements_numpy//:pkg",
+        "@test_requirements_numpy//:pkg",
+        "@test_requirements_pillow//:pkg",
+        "@test_requirements_requests//:pkg",
     ],
 )
 
@@ -45,5 +54,12 @@ compile_pip_requirements(
     name = "requirements",
     requirements_in = "requirements.in",
     requirements_txt = "requirements.txt",
+    tags = ["manual"],
+)
+
+compile_pip_requirements(
+    name = "test_requirements",
+    requirements_in = "test/requirements.in",
+    requirements_txt = "test/requirements.txt",
     tags = ["manual"],
 )
