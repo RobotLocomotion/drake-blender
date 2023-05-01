@@ -19,7 +19,17 @@ py_binary(
 py_test(
     name = "server_test",
     srcs = ["test/server_test.py"],
-    data = [":server"],
+    data = [
+        ":server",
+        "test/depth_000.gltf",
+        "test/depth_000.png",
+        "test/label_000.gltf",
+        "test/label_000.png",
+    ],
+    deps = [
+        "@bazel_tools//tools/python/runfiles",
+        "@requirements_bpy//:pkg",
+    ]
 )
 
 pycodestyle_test(
