@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: BSD-2-Clause
+
+# To compile this file into requirements.txt, run:
+# ./bazel run //:test_requirements.update -- --upgrade
+
+numpy
+pillow
+requests
