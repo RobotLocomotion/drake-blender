@@ -18,7 +18,7 @@ py_binary(
 
 py_test(
     name = "server_test",
-    srcs = ["server_test.py"],
+    srcs = ["test/server_test.py"],
     data = [":server"],
 )
 
@@ -27,6 +27,7 @@ pycodestyle_test(
     srcs = [
         "bazel",
         "server.py",
+        "test/server_test.py",
     ],
 )
 
