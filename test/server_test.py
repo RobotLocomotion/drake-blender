@@ -41,33 +41,6 @@ class ServerTest(unittest.TestCase):
         self.server_proc.terminate()
         self.assertEqual(self.server_proc.wait(1.0), -signal.SIGTERM)
 
-    @staticmethod
-    def _create_request_form(*, image_type):
-        # These properties are used when rendering the ground truth images. The
-        # Blender server should use the same setting for testing.
-        form_data = {
-            "scene_sha256": "NOT_USED_IN_THE_TEST",
-            "image_type": image_type,
-            "width": "640",
-            "height": "480",
-            "near": "0.01",
-            "far": "10.0",
-            "focal_x": "579.411",
-            "focal_y": "579.411",
-            "fov_x": "0.785398",
-            "fov_y": "0.785398",
-            "center_x": "319.5",
-            "center_y": "239.5",
-        }
-        if image_type == "depth":
-            form_data["min_depth"] = 0.01
-            form_data["max_depth"] = 10.0
-        return form_data
-
-    def assert_error_fraction_less(self, image_diff, fraction):
-        image_diff_fraction = np.count_nonzero(image_diff) / image_diff.size
-        self.assertLess(image_diff_fraction, fraction)
-
     def test_gltf_render(self):
         """Renders images given a pre-generated glTF file and compares the
         rendering from the Blender server with the ground truth image.
@@ -109,6 +82,33 @@ class ServerTest(unittest.TestCase):
             > threshold
         )
         self.assert_error_fraction_less(diff, INVALID_PIXEL_FRACTION)
+
+    @staticmethod
+    def _create_request_form(*, image_type):
+        # These properties are used when rendering the ground truth images. The
+        # Blender server should use the same setting for testing.
+        form_data = {
+            "scene_sha256": "NOT_USED_IN_THE_TEST",
+            "image_type": image_type,
+            "width": "640",
+            "height": "480",
+            "near": "0.01",
+            "far": "10.0",
+            "focal_x": "579.411",
+            "focal_y": "579.411",
+            "fov_x": "0.785398",
+            "fov_y": "0.785398",
+            "center_x": "319.5",
+            "center_y": "239.5",
+        }
+        if image_type == "depth":
+            form_data["min_depth"] = 0.01
+            form_data["max_depth"] = 10.0
+        return form_data
+
+    def assert_error_fraction_less(self, image_diff, fraction):
+        image_diff_fraction = np.count_nonzero(image_diff) / image_diff.size
+        self.assertLess(image_diff_fraction, fraction)
 
 
 if __name__ == "__main__":
