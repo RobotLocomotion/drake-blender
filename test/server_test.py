@@ -1,11 +1,15 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
+import test.unittest_path_cleaner  # Disable Ubuntu packages.
+
 from pathlib import Path
 import signal
 import socket
 import subprocess
 import time
 import unittest
+
+import numpy as np
 
 
 class ServerTest(unittest.TestCase):
