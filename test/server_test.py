@@ -36,9 +36,6 @@ class ServerTest(unittest.TestCase):
         server_path = Path("server").absolute().resolve()
         self.assertTrue(server_path.exists(), server_path)
         self.server_proc = subprocess.Popen([server_path])
-
-    def _wait_for_server(self):
-        """Waits for the server to start accepting connections."""
         start_time = time.time()
         while time.time() < start_time + 30.0:
             with socket.socket() as s:
@@ -51,7 +48,7 @@ class ServerTest(unittest.TestCase):
         else:
             self.fail("Could not connect after 30 seconds")
 
-    def _shutdown_server(self):
+    def tearDown(self):
         self.server_proc.terminate()
         self.assertEqual(self.server_proc.wait(1.0), -signal.SIGTERM)
 
@@ -85,8 +82,6 @@ class ServerTest(unittest.TestCase):
         """Renders images given a pre-generated glTF file and compares the
         rendering from the Blender server with the ground truth image.
         """
-        self._wait_for_server()
-
         test_args = [
             # (image_type, ndarray dtype, threshold)
             ("label", np.uint8, LABEL_PIXEL_THRESHOLD),
@@ -127,8 +122,6 @@ class ServerTest(unittest.TestCase):
                     > threshold
                 )
                 self.assert_error_fraction_less(diff, INVALID_PIXEL_FRACTION)
-
-        self._shutdown_server()
 
 
 if __name__ == "__main__":
