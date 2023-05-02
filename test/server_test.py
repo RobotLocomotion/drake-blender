@@ -93,7 +93,16 @@ class ServerTest(unittest.TestCase):
                 stream=True,
             )
         self.assertEqual(response.status_code, 200)
-        blender = np.array(Image.open(response.raw, formats=["PNG"]))
+
+        # Save the output image for offline inspection. It will be archived
+        # into `.bazel/testlogs/server_test/test.outputs/outputs.zip`.
+        save_dir = Path(os.environ["TEST_UNDECLARED_OUTPUTS_DIR"])
+        save_file = save_dir / f"{image_type}.png"
+        with open(save_file, "wb") as image:
+            shutil.copyfileobj(response.raw, image)
+
+        # Compare the output image to the ground truth image (from git).
+        blender = np.array(Image.open(save_file))
         ground_truth = np.array(Image.open(f"test/{image_type}_000.png"))
         diff = (
             np.absolute(ground_truth.astype(dtype) - blender.astype(dtype))
