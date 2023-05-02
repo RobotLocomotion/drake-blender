@@ -33,8 +33,7 @@ class ServerTest(unittest.TestCase):
     def setUp(self):
         self.tmp_dir = Path(os.environ["TEST_TMPDIR"])
         # Find and launch the server in the background.
-        server_path = Path("server").absolute().resolve()
-        self.assertTrue(server_path.exists(), server_path)
+        server_path = _find_resource("__main__/server").absolute().resolve()
         self.server_proc = subprocess.Popen([server_path])
         start_time = time.time()
         while time.time() < start_time + 30.0:
