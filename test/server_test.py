@@ -57,7 +57,7 @@ class ServerTest(unittest.TestCase):
         # These properties are used when rendering the ground truth images. The
         # Blender server should use the same setting for testing.
         form_data = {
-            "scene_sha256": "NO_USED_IN_THE_TEST",
+            "scene_sha256": "NOT_USED_IN_THE_TEST",
             "image_type": image_type,
             "width": "640",
             "height": "480",
