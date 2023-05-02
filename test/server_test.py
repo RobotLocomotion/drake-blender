@@ -31,7 +31,7 @@ def _find_resource(bazel_path):
 
 class ServerTest(unittest.TestCase):
     def setUp(self):
-        self.tmp_dir = os.environ.get("TEST_TMPDIR", "/tmp")
+        self.tmp_dir = Path(os.environ["TEST_TMPDIR"])
         # Find and launch the server in the background.
         server_path = Path("server").absolute().resolve()
         self.assertTrue(server_path.exists(), server_path)
@@ -104,8 +104,7 @@ class ServerTest(unittest.TestCase):
                 self.assertEqual(response.status_code, 200)
 
                 # Save the returned image to a temporary location.
-                blender_image_path = os.path.join(
-                    self.tmp_dir, f"{image_type}.png")
+                blender_image_path = self.tmp_dir / f"{image_type}.png"
                 with open(blender_image_path, "wb") as image:
                     shutil.copyfileobj(response.raw, image)
 
