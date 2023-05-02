@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
+from collections import namedtuple
 import os
 from pathlib import Path
 import shutil
@@ -51,7 +52,8 @@ class ServerTest(unittest.TestCase):
         self.server_proc.terminate()
         self.assertEqual(self.server_proc.wait(1.0), -signal.SIGTERM)
 
-    def _create_request_form(self, image_type):
+    @staticmethod
+    def _create_request_form(*, image_type):
         # These properties are used when rendering the ground truth images. The
         # Blender server should use the same setting for testing.
         form_data = {
@@ -81,45 +83,45 @@ class ServerTest(unittest.TestCase):
         """Renders images given a pre-generated glTF file and compares the
         rendering from the Blender server with the ground truth image.
         """
-        test_args = [
-            # (image_type, ndarray dtype, threshold)
-            ("label", np.uint8, LABEL_PIXEL_THRESHOLD),
-            ("depth", float, DEPTH_PIXEL_THRESHOLD),
+        TestCase = namedtuple("TestCase", ["image_type", "dtype", "threshold"])
+        test_cases = [
+            TestCase("label", np.uint8, LABEL_PIXEL_THRESHOLD),
+            TestCase("depth", float, DEPTH_PIXEL_THRESHOLD),
         ]
+        for test_case in test_cases:
+            with self.subTest(image_type=test_case.image_type):
+                self.check_gltf_render(**test_case._asdict())
 
-        for image_type, dtype, threshold in test_args:
-            with self.subTest(image_type=image_type):
-                gltf_file = _find_resource(
-                    f"__main__/test/{image_type}_000.gltf"
-                )
-                with open(gltf_file, "rb") as scene:
-                    form_data = self._create_request_form(image_type)
-                    response = requests.post(
-                        url="http://127.0.0.1:8000/render",
-                        data=form_data,
-                        files={"scene": scene},
-                        stream=True,
-                    )
-                self.assertEqual(response.status_code, 200)
+    def check_gltf_render(self, *, image_type, dtype, threshold):
+        """The implementation of test_gltf_render on a specific image_type.
+        """
+        gltf_file = _find_resource(f"__main__/test/{image_type}_000.gltf")
+        with open(gltf_file, "rb") as scene:
+            form_data = self._create_request_form(image_type=image_type)
+            response = requests.post(
+                url="http://127.0.0.1:8000/render",
+                data=form_data,
+                files={"scene": scene},
+                stream=True,
+            )
+        self.assertEqual(response.status_code, 200)
 
-                # Save the returned image to a temporary location.
-                blender_image_path = self.tmp_dir / f"{image_type}.png"
-                with open(blender_image_path, "wb") as image:
-                    shutil.copyfileobj(response.raw, image)
+        # Save the returned image to a temporary location.
+        blender_image_path = self.tmp_dir / f"{image_type}.png"
+        with open(blender_image_path, "wb") as image:
+            shutil.copyfileobj(response.raw, image)
 
-                ground_truth_image_path = _find_resource(
-                    f"__main__/test/{image_type}_000.png"
-                )
-                ground_truth = np.array(Image.open(ground_truth_image_path))
-                blender = np.array(Image.open(blender_image_path))
+        ground_truth_image_path = _find_resource(
+            f"__main__/test/{image_type}_000.png"
+        )
+        ground_truth = np.array(Image.open(ground_truth_image_path))
+        blender = np.array(Image.open(blender_image_path))
 
-                diff = (
-                    np.absolute(
-                        ground_truth.astype(dtype) - blender.astype(dtype)
-                    )
-                    > threshold
-                )
-                self.assert_error_fraction_less(diff, INVALID_PIXEL_FRACTION)
+        diff = (
+            np.absolute(ground_truth.astype(dtype) - blender.astype(dtype))
+            > threshold
+        )
+        self.assert_error_fraction_less(diff, INVALID_PIXEL_FRACTION)
 
 
 if __name__ == "__main__":
