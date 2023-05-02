@@ -27,6 +27,9 @@ py_test(
         "test/label_000.png",
         "@bazel_tools//tools/python/runfiles",
     ],
+    deps = [
+        "@requirements_bpy//:pkg",
+    ]
 )
 
 pycodestyle_test(
@@ -34,6 +37,7 @@ pycodestyle_test(
     srcs = [
         "bazel",
         "server.py",
+        "test/server_test.py",
     ],
 )
 

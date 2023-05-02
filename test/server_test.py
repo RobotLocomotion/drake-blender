@@ -1,4 +1,3 @@
-import json
 import os
 from pathlib import Path
 import shutil
@@ -7,7 +6,6 @@ import socket
 import subprocess
 import time
 import unittest
-import urllib
 
 from bazel_tools.tools.python.runfiles import runfiles
 import numpy as np
@@ -84,7 +82,7 @@ class ServerTest(unittest.TestCase):
     def test_gltf_render(self):
         """Renders images given a pre-generated glTF file and compares the
         rendering from the Blender server with the ground truth image.
-        """ 
+        """
         self._wait_for_server()
 
         test_args = [
