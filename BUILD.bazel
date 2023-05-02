@@ -28,7 +28,7 @@ py_test(
     ],
     deps = [
         "@bazel_tools//tools/python/runfiles",
-        "@requirements_bpy//:pkg",
+        "@requirements_requests//:pkg",
     ]
 )
 
