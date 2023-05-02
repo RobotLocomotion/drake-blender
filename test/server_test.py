@@ -22,7 +22,6 @@ INVALID_PIXEL_FRACTION = 0.2
 
 class ServerTest(unittest.TestCase):
     def setUp(self):
-        self.tmp_dir = Path(os.environ["TEST_TMPDIR"])
         # Find and launch the server in the background.
         server_path = Path("server").absolute().resolve()
         self.server_proc = subprocess.Popen([server_path])
@@ -94,15 +93,8 @@ class ServerTest(unittest.TestCase):
                 stream=True,
             )
         self.assertEqual(response.status_code, 200)
-
-        # Save the returned image to a temporary location.
-        blender_image_path = self.tmp_dir / f"{image_type}.png"
-        with open(blender_image_path, "wb") as image:
-            shutil.copyfileobj(response.raw, image)
-
+        blender = np.array(Image.open(response.raw, formats=["PNG"]))
         ground_truth = np.array(Image.open(f"test/{image_type}_000.png"))
-        blender = np.array(Image.open(blender_image_path))
-
         diff = (
             np.absolute(ground_truth.astype(dtype) - blender.astype(dtype))
             > threshold
