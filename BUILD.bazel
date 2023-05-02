@@ -16,10 +16,19 @@ py_binary(
     ],
 )
 
+py_library(
+    name = "unittest_path_cleaner",
+    srcs = ["test/unittest_path_cleaner.py"],
+)
+
 py_test(
     name = "server_test",
     srcs = ["test/server_test.py"],
     data = [":server"],
+    deps = [
+        ":unittest_path_cleaner",
+        "@requirements_numpy//:pkg",
+    ],
 )
 
 pycodestyle_test(
@@ -28,6 +37,7 @@ pycodestyle_test(
         "bazel",
         "server.py",
         "test/server_test.py",
+        "test/unittest_path_cleaner.py",
     ],
 )
 
