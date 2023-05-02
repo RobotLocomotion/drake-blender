@@ -20,21 +20,11 @@ LABEL_PIXEL_THRESHOLD = 0
 INVALID_PIXEL_FRACTION = 0.2
 
 
-def _find_resource(bazel_path):
-    """Looks up the path to "runfiles" data, as organized by Bazel."""
-    manifest = runfiles.Create()
-    location = manifest.Rlocation(bazel_path)
-    assert location is not None, f"Not a resource: {bazel_path}"
-    result = Path(location)
-    assert result.exists(), f"Missing resource: {bazel_path}"
-    return result
-
-
 class ServerTest(unittest.TestCase):
     def setUp(self):
         self.tmp_dir = Path(os.environ["TEST_TMPDIR"])
         # Find and launch the server in the background.
-        server_path = _find_resource("__main__/server").absolute().resolve()
+        server_path = Path("server").absolute().resolve()
         self.server_proc = subprocess.Popen([server_path])
         start_time = time.time()
         while time.time() < start_time + 30.0:
@@ -95,8 +85,7 @@ class ServerTest(unittest.TestCase):
     def check_gltf_render(self, *, image_type, dtype, threshold):
         """The implementation of test_gltf_render on a specific image_type.
         """
-        gltf_file = _find_resource(f"__main__/test/{image_type}_000.gltf")
-        with open(gltf_file, "rb") as scene:
+        with open(f"test/{image_type}_000.gltf", "rb") as scene:
             form_data = self._create_request_form(image_type=image_type)
             response = requests.post(
                 url="http://127.0.0.1:8000/render",
@@ -111,10 +100,7 @@ class ServerTest(unittest.TestCase):
         with open(blender_image_path, "wb") as image:
             shutil.copyfileobj(response.raw, image)
 
-        ground_truth_image_path = _find_resource(
-            f"__main__/test/{image_type}_000.png"
-        )
-        ground_truth = np.array(Image.open(ground_truth_image_path))
+        ground_truth = np.array(Image.open(f"test/{image_type}_000.png"))
         blender = np.array(Image.open(blender_image_path))
 
         diff = (
