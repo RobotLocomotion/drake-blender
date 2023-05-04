@@ -2,6 +2,7 @@
 
 import test.unittest_path_cleaner  # Disable Ubuntu packages.
 
+import datetime
 import os
 from pathlib import Path
 import shutil
@@ -19,6 +20,9 @@ COLOR_PIXEL_THRESHOLD = 0
 DEPTH_PIXEL_THRESHOLD = 1  # Depth measurement tolerance in millimeters.
 LABEL_PIXEL_THRESHOLD = 0
 INVALID_PIXEL_FRACTION = 0.02
+
+# The most basic glTF file containing two diffuse color boxes for testing.
+DEFAULT_GLTF_FILE = "test/two_rgba_boxes.gltf"
 
 
 class ServerTest(unittest.TestCase):
@@ -42,41 +46,84 @@ class ServerTest(unittest.TestCase):
         self.server_proc.terminate()
         self.assertEqual(self.server_proc.wait(1.0), -signal.SIGTERM)
 
-    def test_rgba_gltf_render(self):
-        """Renders each type of image given a glTF file containing only diffuse
-        color textures and compares the renderings with the ground truth.
-        """
-        gltf_path = "test/two_rgba_boxes.gltf"
-        # TODO(zachfang): Investigate why this is order dependent.
-        self._test_color_render(gltf_path)
-        self._test_label_render(gltf_path)
-        self._test_depth_render(gltf_path)
-
-    def _test_color_render(self, gltf_path):
-        self._check_gltf_render(
+    def test_color_render(self, gltf_path=DEFAULT_GLTF_FILE):
+        rendered_image = self._check_gltf_render(
             gltf_path=gltf_path,
             image_type="color",
-            dtype=np.uint8,
+        )
+        self.asssert_image_equal(
+            test_image=rendered_image,
+            ground_truth_image="test/color.png",
             threshold=COLOR_PIXEL_THRESHOLD,
         )
 
-    def _test_depth_render(self, gltf_path):
-        self._check_gltf_render(
+    def test_depth_render(self, gltf_path=DEFAULT_GLTF_FILE):
+        rendered_image = self._check_gltf_render(
             gltf_path=gltf_path,
             image_type="depth",
-            dtype=float,
+        )
+        self.asssert_image_equal(
+            test_image=rendered_image,
+            ground_truth_image="test/depth.png",
             threshold=DEPTH_PIXEL_THRESHOLD,
         )
 
-    def _test_label_render(self, gltf_path):
-        self._check_gltf_render(
+    def test_label_render(self, gltf_path=DEFAULT_GLTF_FILE):
+        rendered_image = self._check_gltf_render(
             gltf_path=gltf_path,
             image_type="label",
-            dtype=np.uint8,
+        )
+        self.asssert_image_equal(
+            test_image=rendered_image,
+            ground_truth_image="test/label.png",
             threshold=LABEL_PIXEL_THRESHOLD,
         )
 
-    def _check_gltf_render(self, gltf_path, image_type, dtype, threshold):
+    def test_consistency(self):
+        """Tests the consistentcy of the render results from consecutive
+        requests of different image types.
+        """
+        string_to_test_function = {
+            "color": self.test_color_render,
+            "depth": self.test_depth_render,
+            "label": self.test_label_render,
+        }
+
+        # An arbitrary render sequence to test the Blender state is reset
+        # properly every time.
+        render_orders = ["label", "depth", "color", "depth", "label", "color"]
+
+        for image_type in render_orders:
+            string_to_test_function[image_type]()
+
+    def test_repeatability(self):
+        """Tests the repeatability by rendering the same image twice. The
+        rendered images should be exactly identitcal.
+        """
+        test_cases = [
+            ("color", COLOR_PIXEL_THRESHOLD),
+            ("label", LABEL_PIXEL_THRESHOLD),
+            ("depth", DEPTH_PIXEL_THRESHOLD),
+        ]
+
+        for image_type, threshold in test_cases:
+            with self.subTest(image_type=image_type):
+                first_image = self._check_gltf_render(
+                    gltf_path=DEFAULT_GLTF_FILE,
+                    image_type=image_type,
+                )
+                second_image = self._check_gltf_render(
+                    gltf_path=DEFAULT_GLTF_FILE,
+                    image_type=image_type,
+                )
+                self.asssert_image_equal(
+                    test_image=first_image,
+                    ground_truth_image=second_image,
+                    threshold=threshold,
+                    invalid_fraction=0.0,
+                )
+
+    def _check_gltf_render(self, gltf_path, image_type):
         """The implementation of the per-pixel image differencing on a specific
         image_type.
         """
@@ -93,18 +140,11 @@ class ServerTest(unittest.TestCase):
         # Save the output image for offline inspection. It will be archived
         # into `.bazel/testlogs/server_test/test.outputs/outputs.zip`.
         save_dir = Path(os.environ["TEST_UNDECLARED_OUTPUTS_DIR"])
-        save_file = save_dir / f"{image_type}.png"
+        timestamp = datetime.datetime.now().strftime("%H-%M-%S-%f")
+        save_file = save_dir / f"{timestamp}.png"
         with open(save_file, "wb") as image:
             shutil.copyfileobj(response.raw, image)
-
-        # Compare the output image to the ground truth image (from git).
-        blender = np.array(Image.open(save_file))
-        ground_truth = np.array(Image.open(f"test/{image_type}.png"))
-        diff = (
-            np.absolute(ground_truth.astype(dtype) - blender.astype(dtype))
-            > threshold
-        )
-        self.assert_error_fraction_less(diff, INVALID_PIXEL_FRACTION)
+        return save_file
 
     @staticmethod
     def _create_request_form(*, image_type):
@@ -129,9 +169,25 @@ class ServerTest(unittest.TestCase):
             form_data["max_depth"] = 10.0
         return form_data
 
+    def asssert_image_equal(
+        self,
+        test_image,
+        ground_truth_image,
+        threshold,
+        invalid_fraction=INVALID_PIXEL_FRACTION,
+    ):
+        # Compare the output image to the ground truth image (from git).
+        test = np.array(Image.open(test_image))
+        ground_truth = np.array(Image.open(ground_truth_image))
+        diff = (
+            np.absolute(ground_truth.astype(float) - test.astype(float))
+            > threshold
+        )
+        self.assert_error_fraction_less(diff, invalid_fraction)
+
     def assert_error_fraction_less(self, image_diff, fraction):
         image_diff_fraction = np.count_nonzero(image_diff) / image_diff.size
-        self.assertLess(image_diff_fraction, fraction)
+        self.assertLessEqual(image_diff_fraction, fraction)
 
 
 if __name__ == "__main__":
