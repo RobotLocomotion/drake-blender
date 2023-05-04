@@ -29,7 +29,7 @@ py_test(
         "test/color.png",
         "test/depth.png",
         "test/label.png",
-        "test/scene.gltf",
+        "test/two_rgba_boxes.gltf",
     ],
     deps = [
         ":unittest_path_cleaner",
