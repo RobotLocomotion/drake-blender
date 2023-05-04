@@ -98,20 +98,13 @@ class Blender:
 
     def reset_scene(self):
         """
-        Resets the scene in Blender by removing any default settings, e.g., the
-        default object, light, and camera.
+        Resets the scene in Blender by loading the default startup file, and
+        then removes the default cube object.
         """
+        bpy.ops.wm.read_factory_settings()
         for item in bpy.data.objects:
             item.select_set(True)
         bpy.ops.object.delete()
-
-        for material in bpy.data.materials:
-            if not material.users:
-                bpy.data.materials.remove(material)
-
-        for texture in bpy.data.textures:
-            if not texture.users:
-                bpy.data.textures.remove(texture)
 
     def add_default_light_source(self):
         light = bpy.data.lights.new(name="POINT", type="POINT")

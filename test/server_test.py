@@ -47,10 +47,24 @@ class ServerTest(unittest.TestCase):
         color textures and compares the renderings with the ground truth.
         """
         gltf_path = "test/two_rgba_boxes.gltf"
-        # TODO(zachfang): Investigate why this is order dependent.
         self._test_color_render(gltf_path)
-        self._test_label_render(gltf_path)
         self._test_depth_render(gltf_path)
+        self._test_label_render(gltf_path)
+
+    def test_consistency(self):
+        gltf_path = "test/two_rgba_boxes.gltf"
+        string_to_test_function = {
+            "color": self._test_color_render,
+            "depth": self._test_depth_render,
+            "label": self._test_label_render,
+        }
+
+        # An arbitrary render sequence to test the Blender state is reset
+        # properly every time.
+        render_orders = ["label", "depth", "color", "label", "label", "depth"]
+
+        for image_type in render_orders:
+            string_to_test_function[image_type](gltf_path)
 
     def _test_color_render(self, gltf_path):
         self._check_gltf_render(
