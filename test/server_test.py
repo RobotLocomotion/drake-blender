@@ -2,7 +2,6 @@
 
 import test.unittest_path_cleaner  # Disable Ubuntu packages.
 
-from collections import namedtuple
 import os
 from pathlib import Path
 import shutil
@@ -18,10 +17,8 @@ import requests
 
 COLOR_PIXEL_THRESHOLD = 0
 DEPTH_PIXEL_THRESHOLD = 1  # Depth measurement tolerance in millimeters.
-# TODO(zachfang): Investigate why 5% of the pixels have different label values.
 LABEL_PIXEL_THRESHOLD = 0
-# TODO(zachfang): Use a tighter threshold, e.g., 0.02.
-INVALID_PIXEL_FRACTION = 0.1
+INVALID_PIXEL_FRACTION = 0.02
 
 
 class ServerTest(unittest.TestCase):
@@ -45,25 +42,45 @@ class ServerTest(unittest.TestCase):
         self.server_proc.terminate()
         self.assertEqual(self.server_proc.wait(1.0), -signal.SIGTERM)
 
-    def test_gltf_render(self):
-        """Renders images given a pre-generated glTF file and compares the
-        rendering from the Blender server with the ground truth image.
+    def test_rgba_gltf_render(self):
+        """Renders each type of image given a glTF file containing only diffuse
+        color textures and compares the renderings with the ground truth.
         """
-        TestCase = namedtuple("TestCase", ["image_type", "dtype", "threshold"])
+        gltf_path = "test/two_rgba_boxes.gltf"
         # TODO(zachfang): Investigate why this is order dependent.
-        test_cases = [
-            TestCase("color", np.uint8, COLOR_PIXEL_THRESHOLD),
-            TestCase("label", np.uint8, LABEL_PIXEL_THRESHOLD),
-            TestCase("depth", float, DEPTH_PIXEL_THRESHOLD),
-        ]
-        for test_case in test_cases:
-            with self.subTest(image_type=test_case.image_type):
-                self.check_gltf_render(**test_case._asdict())
+        self._test_color_render(gltf_path)
+        self._test_label_render(gltf_path)
+        self._test_depth_render(gltf_path)
 
-    def check_gltf_render(self, *, image_type, dtype, threshold):
-        """The implementation of test_gltf_render on a specific image_type.
+    def _test_color_render(self, gltf_path):
+        self._check_gltf_render(
+            gltf_path=gltf_path,
+            image_type="color",
+            dtype=np.uint8,
+            threshold=COLOR_PIXEL_THRESHOLD,
+        )
+
+    def _test_depth_render(self, gltf_path):
+        self._check_gltf_render(
+            gltf_path=gltf_path,
+            image_type="depth",
+            dtype=float,
+            threshold=DEPTH_PIXEL_THRESHOLD,
+        )
+
+    def _test_label_render(self, gltf_path):
+        self._check_gltf_render(
+            gltf_path=gltf_path,
+            image_type="label",
+            dtype=np.uint8,
+            threshold=LABEL_PIXEL_THRESHOLD,
+        )
+
+    def _check_gltf_render(self, gltf_path, image_type, dtype, threshold):
+        """The implementation of the per-pixel image differencing on a specific
+        image_type.
         """
-        with open(f"test/scene.gltf", "rb") as scene:
+        with open(gltf_path, "rb") as scene:
             form_data = self._create_request_form(image_type=image_type)
             response = requests.post(
                 url="http://127.0.0.1:8000/render",
