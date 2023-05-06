@@ -47,35 +47,26 @@ class ServerTest(unittest.TestCase):
         self.assertEqual(self.server_proc.wait(1.0), -signal.SIGTERM)
 
     def test_color_render(self, gltf_path=DEFAULT_GLTF_FILE):
-        rendered_image = self._check_gltf_render(
+        self._render_and_check(
             gltf_path=gltf_path,
             image_type="color",
-        )
-        self.asssert_image_equal(
-            test_image=rendered_image,
-            ground_truth_image="test/color.png",
+            reference_image_path="test/color.png",
             threshold=COLOR_PIXEL_THRESHOLD,
         )
 
     def test_depth_render(self, gltf_path=DEFAULT_GLTF_FILE):
-        rendered_image = self._check_gltf_render(
+        self._render_and_check(
             gltf_path=gltf_path,
             image_type="depth",
-        )
-        self.asssert_image_equal(
-            test_image=rendered_image,
-            ground_truth_image="test/depth.png",
+            reference_image_path="test/depth.png",
             threshold=DEPTH_PIXEL_THRESHOLD,
         )
 
     def test_label_render(self, gltf_path=DEFAULT_GLTF_FILE):
-        rendered_image = self._check_gltf_render(
+        self._render_and_check(
             gltf_path=gltf_path,
             image_type="label",
-        )
-        self.asssert_image_equal(
-            test_image=rendered_image,
-            ground_truth_image="test/label.png",
+            reference_image_path="test/label.png",
             threshold=LABEL_PIXEL_THRESHOLD,
         )
 
@@ -108,24 +99,34 @@ class ServerTest(unittest.TestCase):
 
         for image_type, threshold in test_cases:
             with self.subTest(image_type=image_type):
-                first_image = self._check_gltf_render(
+                # The rendered image is compared with the ground truth image.
+                first_image = self._render_and_check(
                     gltf_path=DEFAULT_GLTF_FILE,
                     image_type=image_type,
-                )
-                second_image = self._check_gltf_render(
-                    gltf_path=DEFAULT_GLTF_FILE,
-                    image_type=image_type,
-                )
-                self.asssert_image_equal(
-                    test_image=first_image,
-                    ground_truth_image=second_image,
+                    reference_image_path=f"test/{image_type}.png",
                     threshold=threshold,
+                )
+                # Then, the second image is compared with the first one.
+                second_image = self._render_and_check(
+                    gltf_path=DEFAULT_GLTF_FILE,
+                    image_type=image_type,
+                    reference_image_path=first_image,
+                    threshold=0.0,
                     invalid_fraction=0.0,
                 )
 
-    def _check_gltf_render(self, gltf_path, image_type):
+    def _render_and_check(
+        self,
+        gltf_path,
+        image_type,
+        reference_image_path,
+        threshold,
+        invalid_fraction=INVALID_PIXEL_FRACTION
+    ):
         """The implementation of the per-pixel image differencing on a specific
-        image_type.
+        image_type. It first renders an image by calling the server, compares
+        the result given a reference image and thresholds, and returns the path
+        of the rendered image.
         """
         with open(gltf_path, "rb") as scene:
             form_data = self._create_request_form(image_type=image_type)
@@ -141,10 +142,17 @@ class ServerTest(unittest.TestCase):
         # into `.bazel/testlogs/server_test/test.outputs/outputs.zip`.
         save_dir = Path(os.environ["TEST_UNDECLARED_OUTPUTS_DIR"])
         timestamp = datetime.datetime.now().strftime("%H-%M-%S-%f")
-        save_file = save_dir / f"{timestamp}.png"
-        with open(save_file, "wb") as image:
+        rendered_image_path = save_dir / f"{timestamp}.png"
+        with open(rendered_image_path, "wb") as image:
             shutil.copyfileobj(response.raw, image)
-        return save_file
+
+        self._assert_images_equal(
+            rendered_image_path,
+            reference_image_path,
+            threshold,
+            invalid_fraction,
+        )
+        return rendered_image_path
 
     @staticmethod
     def _create_request_form(*, image_type):
@@ -169,25 +177,23 @@ class ServerTest(unittest.TestCase):
             form_data["max_depth"] = 10.0
         return form_data
 
-    def asssert_image_equal(
+    def _assert_images_equal(
         self,
-        test_image,
-        ground_truth_image,
+        rendered_image_path,
+        reference_image_path,
         threshold,
-        invalid_fraction=INVALID_PIXEL_FRACTION,
+        invalid_fraction,
     ):
         # Compare the output image to the ground truth image (from git).
-        test = np.array(Image.open(test_image))
-        ground_truth = np.array(Image.open(ground_truth_image))
-        diff = (
-            np.absolute(ground_truth.astype(float) - test.astype(float))
+        test = np.array(Image.open(rendered_image_path))
+        compare_to = np.array(Image.open(reference_image_path))
+        image_diff = (
+            np.absolute(compare_to.astype(float) - test.astype(float))
             > threshold
         )
-        self.assert_error_fraction_less(diff, invalid_fraction)
 
-    def assert_error_fraction_less(self, image_diff, fraction):
         image_diff_fraction = np.count_nonzero(image_diff) / image_diff.size
-        self.assertLessEqual(image_diff_fraction, fraction)
+        self.assertLessEqual(image_diff_fraction, invalid_fraction)
 
 
 if __name__ == "__main__":
