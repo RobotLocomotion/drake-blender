@@ -26,9 +26,11 @@ py_test(
     srcs = ["test/server_test.py"],
     data = [
         ":server",
-        "test/color.png",
         "test/depth.png",
         "test/label.png",
+        "test/one_rgba_one_texture_boxes.color.png",
+        "test/one_rgba_one_texture_boxes.gltf",
+        "test/two_rgba_boxes.color.png",
         "test/two_rgba_boxes.gltf",
     ],
     deps = [

@@ -2,6 +2,7 @@
 
 import test.unittest_path_cleaner  # Disable Ubuntu packages.
 
+from collections import namedtuple
 import datetime
 import os
 from pathlib import Path
@@ -59,28 +60,37 @@ class ServerTest(unittest.TestCase):
         self.server_proc.terminate()
         self.assertEqual(self.server_proc.wait(1.0), -signal.SIGTERM)
 
-    def test_color_render(self, gltf_path=DEFAULT_GLTF_FILE):
+    def test_color_render(self):
         self._render_and_check(
-            gltf_path=gltf_path,
+            gltf_path=DEFAULT_GLTF_FILE,
             image_type="color",
-            reference_image_path="test/color.png",
+            reference_image_path="test/two_rgba_boxes.color.png",
             threshold=COLOR_PIXEL_THRESHOLD,
         )
 
-    def test_depth_render(self, gltf_path=DEFAULT_GLTF_FILE):
+    def test_depth_render(self):
         self._render_and_check(
-            gltf_path=gltf_path,
+            gltf_path=DEFAULT_GLTF_FILE,
             image_type="depth",
             reference_image_path="test/depth.png",
             threshold=DEPTH_PIXEL_THRESHOLD,
         )
 
-    def test_label_render(self, gltf_path=DEFAULT_GLTF_FILE):
+    def test_label_render(self):
         self._render_and_check(
-            gltf_path=gltf_path,
+            gltf_path=DEFAULT_GLTF_FILE,
             image_type="label",
             reference_image_path="test/label.png",
             threshold=LABEL_PIXEL_THRESHOLD,
+        )
+
+    def test_texture_render(self):
+        """Tests whether a texture is rendered properly in a color image."""
+        self._render_and_check(
+            gltf_path="test/one_rgba_one_texture_boxes.gltf",
+            image_type="color",
+            reference_image_path="test/one_rgba_one_texture_boxes.color.png",
+            threshold=COLOR_PIXEL_THRESHOLD,
         )
 
     def test_consistency(self):
@@ -89,26 +99,31 @@ class ServerTest(unittest.TestCase):
         ground truth images. A second image is then rendered and expected to be
         pixel-identical as the first one.
         """
+        TestCase = namedtuple(
+            "TestCase", ["image_type", "reference_image", "threshold"]
+        )
         test_cases = [
-            ("color", COLOR_PIXEL_THRESHOLD),
-            ("label", LABEL_PIXEL_THRESHOLD),
-            ("depth", DEPTH_PIXEL_THRESHOLD),
+            TestCase(
+                "color", "test/two_rgba_boxes.color.png", COLOR_PIXEL_THRESHOLD
+            ),
+            TestCase("depth", "test/depth.png", DEPTH_PIXEL_THRESHOLD),
+            TestCase("label", "test/label.png", LABEL_PIXEL_THRESHOLD),
         ]
 
         returned_image_paths = []
-        for image_type, threshold in test_cases:
+        for test_case in test_cases:
             first_image = self._render_and_check(
                 gltf_path=DEFAULT_GLTF_FILE,
-                image_type=image_type,
-                reference_image_path=f"test/{image_type}.png",
-                threshold=threshold,
+                image_type=test_case.image_type,
+                reference_image_path=test_case.reference_image,
+                threshold=test_case.threshold,
             )
             returned_image_paths.append(first_image)
 
-        for index, (image_type, _) in enumerate(test_cases):
+        for index, test_case in enumerate(test_cases):
             second_image = self._render_and_check(
                 gltf_path=DEFAULT_GLTF_FILE,
-                image_type=image_type,
+                image_type=test_case.image_type,
                 reference_image_path=returned_image_paths[index],
                 threshold=0.0,
                 invalid_fraction=0.0,
@@ -120,7 +135,7 @@ class ServerTest(unittest.TestCase):
         image_type,
         reference_image_path,
         threshold,
-        invalid_fraction=INVALID_PIXEL_FRACTION
+        invalid_fraction=INVALID_PIXEL_FRACTION,
     ):
         """The implementation of the per-pixel image differencing on a specific
         image_type. It first renders an image by calling the server, compares
