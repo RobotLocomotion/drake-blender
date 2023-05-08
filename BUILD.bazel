@@ -27,8 +27,10 @@ py_test(
     data = [
         ":server",
         "test/color.png",
+        "test/color_with_texture.png",
         "test/depth.png",
         "test/label.png",
+        "test/one_rgba_one_texture_boxes.gltf",
         "test/two_rgba_boxes.gltf",
     ],
     deps = [

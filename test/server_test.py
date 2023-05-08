@@ -59,28 +59,37 @@ class ServerTest(unittest.TestCase):
         self.server_proc.terminate()
         self.assertEqual(self.server_proc.wait(1.0), -signal.SIGTERM)
 
-    def test_color_render(self, gltf_path=DEFAULT_GLTF_FILE):
+    def test_color_render(self):
         self._render_and_check(
-            gltf_path=gltf_path,
+            gltf_path=DEFAULT_GLTF_FILE,
             image_type="color",
             reference_image_path="test/color.png",
             threshold=COLOR_PIXEL_THRESHOLD,
         )
 
-    def test_depth_render(self, gltf_path=DEFAULT_GLTF_FILE):
+    def test_depth_render(self):
         self._render_and_check(
-            gltf_path=gltf_path,
+            gltf_path=DEFAULT_GLTF_FILE,
             image_type="depth",
             reference_image_path="test/depth.png",
             threshold=DEPTH_PIXEL_THRESHOLD,
         )
 
-    def test_label_render(self, gltf_path=DEFAULT_GLTF_FILE):
+    def test_label_render(self):
         self._render_and_check(
-            gltf_path=gltf_path,
+            gltf_path=DEFAULT_GLTF_FILE,
             image_type="label",
             reference_image_path="test/label.png",
             threshold=LABEL_PIXEL_THRESHOLD,
+        )
+
+    def test_texture_render(self):
+        """Tests whether a texture is rendered properly in a color image."""
+        self._render_and_check(
+            gltf_path="test/one_rgba_one_texture_boxes.gltf",
+            image_type="color",
+            reference_image_path="test/color_with_texture.png",
+            threshold=COLOR_PIXEL_THRESHOLD,
         )
 
     def test_consistency(self):
