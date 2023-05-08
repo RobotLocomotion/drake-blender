@@ -5,10 +5,11 @@ import test.unittest_path_cleaner  # Disable Ubuntu packages.
 import datetime
 import os
 from pathlib import Path
+import re
 import shutil
 import signal
-import socket
 import subprocess
+import sys
 import time
 import unittest
 
@@ -27,18 +28,30 @@ DEFAULT_GLTF_FILE = "test/two_rgba_boxes.gltf"
 
 class ServerTest(unittest.TestCase):
     def setUp(self):
-        # Find and launch the server in the background.
+        # Start the server on the other process. Bind to port 0 and let the OS
+        # assign an available port later on.
         server_path = Path("server").absolute().resolve()
-        self.server_proc = subprocess.Popen([server_path])
+        server_args = [
+            server_path,
+            "--host=127.0.0.1",
+            "--port=0",
+        ]
+        self.server_proc = subprocess.Popen(
+            server_args,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
+
+        # Wait to hear which port it's using.
+        self.server_port = None
         start_time = time.time()
-        while time.time() < start_time + 30.0:
-            with socket.socket() as s:
-                try:
-                    s.connect(("127.0.0.1", 8000))
-                    # Success!
-                    break
-                except ConnectionRefusedError as e:
-                    time.sleep(0.1)
+        while time.time() < start_time + 30.0 and self.server_port is None:
+            line = self.server_proc.stdout.readline().decode("utf-8")
+            print(f"[server] {line}", file=sys.stderr, end="")
+            match = re.search(r"Running on http://127.0.0.1:([0-9]+)", line)
+            if match:
+                (self.server_port,) = match.groups()
+                break
         else:
             self.fail("Could not connect after 30 seconds")
 
@@ -117,7 +130,7 @@ class ServerTest(unittest.TestCase):
         with open(gltf_path, "rb") as scene:
             form_data = self._create_request_form(image_type=image_type)
             response = requests.post(
-                url="http://127.0.0.1:8000/render",
+                url=f"http://127.0.0.1:{self.server_port}/render",
                 data=form_data,
                 files={"scene": scene},
                 stream=True,
