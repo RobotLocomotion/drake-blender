@@ -71,25 +71,10 @@ class ServerTest(unittest.TestCase):
         )
 
     def test_consistency(self):
-        """Tests the consistentcy of the render results from consecutive
-        requests of different image types.
-        """
-        string_to_test_function = {
-            "color": self.test_color_render,
-            "depth": self.test_depth_render,
-            "label": self.test_label_render,
-        }
-
-        # An arbitrary render sequence to test the Blender state is reset
-        # properly every time.
-        render_orders = ["label", "depth", "color", "depth", "label", "color"]
-
-        for image_type in render_orders:
-            string_to_test_function[image_type]()
-
-    def test_repeatability(self):
-        """Tests the repeatability by rendering the same image twice. The
-        rendered images should be exactly identitcal.
+        """Tests the consistency of the render results from consecutive
+        requests. Each image type is first rendered and compared with the
+        ground truth images. A second image is then rendered and expected to be
+        pixel-identical as the first one.
         """
         test_cases = [
             ("color", COLOR_PIXEL_THRESHOLD),
@@ -97,23 +82,24 @@ class ServerTest(unittest.TestCase):
             ("depth", DEPTH_PIXEL_THRESHOLD),
         ]
 
+        returned_image_paths = []
         for image_type, threshold in test_cases:
-            with self.subTest(image_type=image_type):
-                # The rendered image is compared with the ground truth image.
-                first_image = self._render_and_check(
-                    gltf_path=DEFAULT_GLTF_FILE,
-                    image_type=image_type,
-                    reference_image_path=f"test/{image_type}.png",
-                    threshold=threshold,
-                )
-                # Then, the second image is compared with the first one.
-                second_image = self._render_and_check(
-                    gltf_path=DEFAULT_GLTF_FILE,
-                    image_type=image_type,
-                    reference_image_path=first_image,
-                    threshold=0.0,
-                    invalid_fraction=0.0,
-                )
+            first_image = self._render_and_check(
+                gltf_path=DEFAULT_GLTF_FILE,
+                image_type=image_type,
+                reference_image_path=f"test/{image_type}.png",
+                threshold=threshold,
+            )
+            returned_image_paths.append(first_image)
+
+        for index, (image_type, _) in enumerate(test_cases):
+            second_image = self._render_and_check(
+                gltf_path=DEFAULT_GLTF_FILE,
+                image_type=image_type,
+                reference_image_path=returned_image_paths[index],
+                threshold=0.0,
+                invalid_fraction=0.0,
+            )
 
     def _render_and_check(
         self,
