@@ -25,10 +25,21 @@ INVALID_PIXEL_FRACTION = 0.02
 
 # The most basic glTF file containing two diffuse color boxes for testing.
 DEFAULT_GLTF_FILE = "test/two_rgba_boxes.gltf"
+# The basic blend file for testing. It contains only a texture box and a
+# default point light that is added in `server.py`.
+DEFAULT_BLEND_FILE = "test/one_texture_box.blend"
 
 
 class ServerTest(unittest.TestCase):
     def setUp(self):
+        self.server_proc = None
+        self.server_port = None
+
+    def tearDown(self):
+        self.server_proc.terminate()
+        self.assertEqual(self.server_proc.wait(1.0), -signal.SIGTERM)
+
+    def _start_server(self, blend_file=None):
         # Start the server on the other process. Bind to port 0 and let the OS
         # assign an available port later on.
         server_path = Path("server").absolute().resolve()
@@ -37,6 +48,8 @@ class ServerTest(unittest.TestCase):
             "--host=127.0.0.1",
             "--port=0",
         ]
+        if blend_file:
+            server_args.extend([f"--blend_file={blend_file}"])
         self.server_proc = subprocess.Popen(
             server_args,
             stdout=subprocess.PIPE,
@@ -44,7 +57,6 @@ class ServerTest(unittest.TestCase):
         )
 
         # Wait to hear which port it's using.
-        self.server_port = None
         start_time = time.time()
         while time.time() < start_time + 30.0:
             line = self.server_proc.stdout.readline().decode("utf-8")
@@ -56,11 +68,8 @@ class ServerTest(unittest.TestCase):
         else:
             self.fail("Could not connect after 30 seconds")
 
-    def tearDown(self):
-        self.server_proc.terminate()
-        self.assertEqual(self.server_proc.wait(1.0), -signal.SIGTERM)
-
     def test_color_render(self):
+        self._start_server()
         self._render_and_check(
             gltf_path=DEFAULT_GLTF_FILE,
             image_type="color",
@@ -69,6 +78,7 @@ class ServerTest(unittest.TestCase):
         )
 
     def test_depth_render(self):
+        self._start_server()
         self._render_and_check(
             gltf_path=DEFAULT_GLTF_FILE,
             image_type="depth",
@@ -77,6 +87,7 @@ class ServerTest(unittest.TestCase):
         )
 
     def test_label_render(self):
+        self._start_server()
         self._render_and_check(
             gltf_path=DEFAULT_GLTF_FILE,
             image_type="label",
@@ -86,12 +97,20 @@ class ServerTest(unittest.TestCase):
 
     def test_texture_render(self):
         """Tests whether a texture is rendered properly in a color image."""
+        self._start_server()
         self._render_and_check(
             gltf_path="test/one_rgba_one_texture_boxes.gltf",
             image_type="color",
             reference_image_path="test/one_rgba_one_texture_boxes.color.png",
             threshold=COLOR_PIXEL_THRESHOLD,
         )
+        self._render_and_check(
+            gltf_path="test/one_rgba_one_texture_boxes.gltf",
+            image_type="depth",
+            reference_image_path="test/depth.png",
+            threshold=DEPTH_PIXEL_THRESHOLD,
+        )
+        # TODO(zachfang): Test label rendering as well.
 
     def test_consistency(self):
         """Tests the consistency of the render results from consecutive
@@ -99,6 +118,8 @@ class ServerTest(unittest.TestCase):
         ground truth images. A second image is then rendered and expected to be
         pixel-identical as the first one.
         """
+        self._start_server()
+
         TestCase = namedtuple(
             "TestCase", ["image_type", "reference_image", "threshold"]
         )
@@ -128,6 +149,25 @@ class ServerTest(unittest.TestCase):
                 threshold=0.0,
                 invalid_fraction=0.0,
             )
+
+    def test_gltf_and_blend_render(self):
+        """Tests rendering when loading the scene through a glTF file and a
+        blend file.
+        """
+        self._start_server(blend_file=DEFAULT_BLEND_FILE)
+        self._render_and_check(
+            gltf_path="test/one_rgba_box.gltf",
+            image_type="color",
+            reference_image_path="test/one_rgba_one_texture_boxes.color.png",
+            threshold=COLOR_PIXEL_THRESHOLD,
+        )
+        self._render_and_check(
+            gltf_path="test/one_rgba_box.gltf",
+            image_type="depth",
+            reference_image_path="test/depth.png",
+            threshold=DEPTH_PIXEL_THRESHOLD,
+        )
+        # TODO(zachfang): Test label rendering as well.
 
     def _render_and_check(
         self,
