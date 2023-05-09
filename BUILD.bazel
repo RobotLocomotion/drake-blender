@@ -26,10 +26,14 @@ py_test(
     srcs = ["test/server_test.py"],
     data = [
         ":server",
+        # This texture file is a dependency for `one_texture_box.blend`.
+        "test/4_color_texture.png",
         "test/depth.png",
         "test/label.png",
+        "test/one_rgba_box.gltf",
         "test/one_rgba_one_texture_boxes.color.png",
         "test/one_rgba_one_texture_boxes.gltf",
+        "test/one_texture_box.blend",
         "test/two_rgba_boxes.color.png",
         "test/two_rgba_boxes.gltf",
     ],
