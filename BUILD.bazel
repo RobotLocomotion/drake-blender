@@ -28,6 +28,7 @@ py_test(
         ":server",
         "test/depth.png",
         "test/label.png",
+        "test/one_rgba_one_texture_boxes.blend",
         "test/one_rgba_one_texture_boxes.color.png",
         "test/one_rgba_one_texture_boxes.gltf",
         "test/two_rgba_boxes.color.png",

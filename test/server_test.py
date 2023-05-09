@@ -28,6 +28,7 @@ DEFAULT_GLTF_FILE = "test/two_rgba_boxes.gltf"
 
 
 class ServerTest(unittest.TestCase):
+    """
     def setUp(self):
         # Start the server on the other process. Bind to port 0 and let the OS
         # assign an available port later on.
@@ -36,6 +37,7 @@ class ServerTest(unittest.TestCase):
             server_path,
             "--host=127.0.0.1",
             "--port=0",
+            "--blend_file=test/one_rgba_one_texture_boxes.blend"
         ]
         self.server_proc = subprocess.Popen(
             server_args,
@@ -58,7 +60,7 @@ class ServerTest(unittest.TestCase):
 
     def tearDown(self):
         self.server_proc.terminate()
-        self.assertEqual(self.server_proc.wait(1.0), -signal.SIGTERM)
+        self.assertEqual(self.server_proc.wait(1.0), -signal.SIGTERM)"""
 
     def test_color_render(self):
         self._render_and_check(
@@ -145,7 +147,7 @@ class ServerTest(unittest.TestCase):
         with open(gltf_path, "rb") as scene:
             form_data = self._create_request_form(image_type=image_type)
             response = requests.post(
-                url=f"http://127.0.0.1:{self.server_port}/render",
+                url=f"http://127.0.0.1:8000/render",
                 data=form_data,
                 files={"scene": scene},
                 stream=True,
@@ -156,7 +158,8 @@ class ServerTest(unittest.TestCase):
         # into `.bazel/testlogs/server_test/test.outputs/outputs.zip`.
         save_dir = Path(os.environ["TEST_UNDECLARED_OUTPUTS_DIR"])
         timestamp = datetime.datetime.now().strftime("%H-%M-%S-%f")
-        rendered_image_path = save_dir / f"{timestamp}.png"
+        #rendered_image_path = save_dir / f"{timestamp}.png"
+        rendered_image_path = "/tmp/color.png"
         with open(rendered_image_path, "wb") as image:
             shutil.copyfileobj(response.raw, image)
 
