@@ -28,8 +28,15 @@ DEFAULT_GLTF_FILE = "test/two_rgba_boxes.gltf"
 
 
 class ServerTest(unittest.TestCase):
-    """
     def setUp(self):
+        self.server_proc = None
+        self.server_port = None
+
+    def tearDown(self):
+        self.server_proc.terminate()
+        self.assertEqual(self.server_proc.wait(1.0), -signal.SIGTERM)
+
+    def _start_server(self, blend_file=None):
         # Start the server on the other process. Bind to port 0 and let the OS
         # assign an available port later on.
         server_path = Path("server").absolute().resolve()
@@ -37,8 +44,9 @@ class ServerTest(unittest.TestCase):
             server_path,
             "--host=127.0.0.1",
             "--port=0",
-            "--blend_file=test/one_rgba_one_texture_boxes.blend"
         ]
+        if blend_file:
+            server_args.extend([f"--blend_file={blend_file}"])
         self.server_proc = subprocess.Popen(
             server_args,
             stdout=subprocess.PIPE,
@@ -46,7 +54,6 @@ class ServerTest(unittest.TestCase):
         )
 
         # Wait to hear which port it's using.
-        self.server_port = None
         start_time = time.time()
         while time.time() < start_time + 30.0:
             line = self.server_proc.stdout.readline().decode("utf-8")
@@ -58,11 +65,8 @@ class ServerTest(unittest.TestCase):
         else:
             self.fail("Could not connect after 30 seconds")
 
-    def tearDown(self):
-        self.server_proc.terminate()
-        self.assertEqual(self.server_proc.wait(1.0), -signal.SIGTERM)"""
-
     def test_color_render(self):
+        self._start_server()
         self._render_and_check(
             gltf_path=DEFAULT_GLTF_FILE,
             image_type="color",
@@ -71,6 +75,7 @@ class ServerTest(unittest.TestCase):
         )
 
     def test_depth_render(self):
+        self._start_server()
         self._render_and_check(
             gltf_path=DEFAULT_GLTF_FILE,
             image_type="depth",
@@ -79,6 +84,7 @@ class ServerTest(unittest.TestCase):
         )
 
     def test_label_render(self):
+        self._start_server()
         self._render_and_check(
             gltf_path=DEFAULT_GLTF_FILE,
             image_type="label",
@@ -87,6 +93,7 @@ class ServerTest(unittest.TestCase):
         )
 
     def test_texture_render(self):
+        self._start_server()
         """Tests whether a texture is rendered properly in a color image."""
         self._render_and_check(
             gltf_path="test/one_rgba_one_texture_boxes.gltf",
@@ -101,6 +108,7 @@ class ServerTest(unittest.TestCase):
         ground truth images. A second image is then rendered and expected to be
         pixel-identical as the first one.
         """
+        self._start_server()
         TestCase = namedtuple(
             "TestCase", ["image_type", "reference_image", "threshold"]
         )
@@ -131,6 +139,18 @@ class ServerTest(unittest.TestCase):
                 invalid_fraction=0.0,
             )
 
+    def test_gltf_and_blend_render(self):
+        self._start_server(
+            blend_file="/home/zachfang/drake-blender/test/one_rgba_one_texture_boxes.blend"  # noqa
+        )
+        self._render_and_check(
+            gltf_path=DEFAULT_GLTF_FILE,
+            image_type="color",
+            reference_image_path="test/two_rgba_boxes.color.png",
+            threshold=COLOR_PIXEL_THRESHOLD,
+            invalid_fraction=0.3,
+        )
+
     def _render_and_check(
         self,
         gltf_path,
@@ -147,7 +167,7 @@ class ServerTest(unittest.TestCase):
         with open(gltf_path, "rb") as scene:
             form_data = self._create_request_form(image_type=image_type)
             response = requests.post(
-                url=f"http://127.0.0.1:8000/render",
+                url=f"http://127.0.0.1:{self.server_port}/render",
                 data=form_data,
                 files={"scene": scene},
                 stream=True,
@@ -158,8 +178,7 @@ class ServerTest(unittest.TestCase):
         # into `.bazel/testlogs/server_test/test.outputs/outputs.zip`.
         save_dir = Path(os.environ["TEST_UNDECLARED_OUTPUTS_DIR"])
         timestamp = datetime.datetime.now().strftime("%H-%M-%S-%f")
-        #rendered_image_path = save_dir / f"{timestamp}.png"
-        rendered_image_path = "/tmp/color.png"
+        rendered_image_path = save_dir / f"{timestamp}.png"
         with open(rendered_image_path, "wb") as image:
             shutil.copyfileobj(response.raw, image)
 
