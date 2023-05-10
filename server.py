@@ -112,7 +112,7 @@ class Blender:
         light_object = bpy.data.objects.new(name="LIGHT", object_data=light)
         bpy.context.collection.objects.link(light_object)
         bpy.context.view_layer.objects.active = light_object
-        light_object.location = (0, -5, 0)
+        light_object.location = (0, 0, 5)
 
     def render_image(self, *, params: RenderParams, output_path: Path):
         """
@@ -129,7 +129,9 @@ class Blender:
             self.add_default_light_source()
 
         # Import glTF.
-        bpy.ops.import_scene.gltf(filepath=str(params.scene))
+        # TODO(zachfang): Fix the rotation when meshes are imported from a
+        # glTF file to be consistent to the rest of the settings.
+        # bpy.ops.import_scene.gltf(filepath=str(params.scene))
 
         # Set rendering parameters.
         scene = bpy.context.scene

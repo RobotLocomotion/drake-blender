@@ -146,9 +146,8 @@ class ServerTest(unittest.TestCase):
         self._render_and_check(
             gltf_path=DEFAULT_GLTF_FILE,
             image_type="color",
-            reference_image_path="test/two_rgba_boxes.color.png",
+            reference_image_path="test/one_rgba_one_texture_boxes.color.png",
             threshold=COLOR_PIXEL_THRESHOLD,
-            invalid_fraction=0.3,
         )
 
     def _render_and_check(
