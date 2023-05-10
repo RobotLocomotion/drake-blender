@@ -172,9 +172,14 @@ def main():
     # Launch the server (if requested).
     if args.server:
         server = _find_resource("__main__/server")
-        server_process = subprocess.Popen(server)
-        # TODO(jwnimmer-tri) Wait until the server is ready.
-        time.sleep(1)
+        blend_file = _find_resource("cube_diorama/cube_diorama.blend")
+        server_process = subprocess.Popen([
+            server,
+            f"--blend_file={blend_file}",
+        ])
+        # TODO(jwnimmer-tri) Wait until the server is ready, but not any more
+        # than that. For now, we'll overcompensate.
+        time.sleep(3)
         assert server_process.poll() is None
     else:
         server_process = None

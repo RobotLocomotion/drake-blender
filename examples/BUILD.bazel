@@ -12,6 +12,8 @@ py_binary(
     data = [
         ":ball_bin.yaml",
         "//:server",
+        "@bazel_tools//tools/python/runfiles",
+        "@cube_diorama//:cube_diorama.blend",
     ],
     deps = [
         "@bazel_tools//tools/python/runfiles",
