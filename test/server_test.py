@@ -235,7 +235,6 @@ class RpcOnlyServerTest(ServerFixture):
             )
 
 
-# TODO(zachfang): Test label rendering as well.
 class BlendFileServerTest(ServerFixture):
     """Tests the server with both RPC data and a blend file as input.
     """
@@ -256,6 +255,16 @@ class BlendFileServerTest(ServerFixture):
             image_type="depth",
             reference_image_path="test/depth.png",
             threshold=DEPTH_PIXEL_THRESHOLD,
+        )
+
+    def test_rpc_blend_label_render(self):
+        # See label_render_settings() for more details. The meshes loaded via a
+        # blend file will be treated as the background in a label image.
+        self._render_and_check(
+            gltf_path="test/one_rgba_box.gltf",
+            image_type="label",
+            reference_image_path="test/one_gltf_one_blend.label.png",
+            threshold=LABEL_PIXEL_THRESHOLD,
         )
 
 
