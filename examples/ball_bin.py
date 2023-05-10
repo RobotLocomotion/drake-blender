@@ -11,6 +11,7 @@ import os
 from pathlib import Path
 import time
 import typing
+import socket
 import subprocess
 
 from bazel_tools.tools.python.runfiles import runfiles
@@ -172,10 +173,21 @@ def main():
     # Launch the server (if requested).
     if args.server:
         server = _find_resource("__main__/server")
-        server_process = subprocess.Popen(server)
-        # TODO(jwnimmer-tri) Wait until the server is ready.
-        time.sleep(1)
-        assert server_process.poll() is None
+        blend_file = _find_resource("cube_diorama/cube_diorama.blend")
+        server_process = subprocess.Popen([
+            server,
+            f"--blend_file={blend_file}",
+        ])
+        # Wait until the server is ready.
+        while True:
+            with socket.socket() as s:
+                try:
+                    s.connect(("127.0.0.1", 8000))
+                    # Success!
+                    break
+                except ConnectionRefusedError as e:
+                    time.sleep(0.1)
+            assert server_process.poll() is None
     else:
         server_process = None
 
