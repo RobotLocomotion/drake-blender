@@ -111,9 +111,9 @@ class Blender:
         light = bpy.data.lights.new(name="POINT", type="POINT")
         light.energy = 100
         light_object = bpy.data.objects.new(name="LIGHT", object_data=light)
+        light_object.location = (0, 0, 5)
         bpy.context.collection.objects.link(light_object)
         bpy.context.view_layer.objects.active = light_object
-        light_object.location = (0, 0, 5)
 
     def render_image(self, *, params: RenderParams, output_path: Path):
         """
@@ -210,10 +210,11 @@ class Blender:
         # Turn anti-aliasing off.
         bpy.context.scene.render.filter_size = 0
 
+        world_nodes = bpy.data.worlds["World"].node_tree.nodes
         # Set the background.
-        bpy.data.worlds["World"].node_tree.nodes["Background"].inputs[
-            0
-        ].default_value = (_UINT16_MAX, _UINT16_MAX, _UINT16_MAX, 1)
+        world_nodes["Background"].inputs[0].default_value = (
+            _UINT16_MAX, _UINT16_MAX, _UINT16_MAX, 1
+        )
 
         # Update the render method to use depth image.
         self.create_depth_node_layer(min_depth, max_depth)
@@ -229,27 +230,29 @@ class Blender:
         # palette.
         scene.render.dither_intensity = 0
 
-        # Set the background to the specific value that Drake will interpret as
-        # kEmpty(32766).
-        bpy.data.worlds["World"].node_tree.nodes["Background"].inputs[
-            0
-        ].default_value = (254 / 255, 127 / 255, 0, 1)
+        # Meshes from a blend file and the background will be painted to white.
+        background_color = (1.0, 1.0, 1.0, 1.0)
+        world_nodes = bpy.data.worlds["World"].node_tree.nodes
+        world_nodes["Background"].inputs[0].default_value = background_color
 
-        # Iterate over all textures and set their color value.
-        for name in bpy.data.objects.keys():
+        # Iterate over all meshes and set their label values.
+        for bpy_object in bpy.data.objects:
+            assert bpy_object is not None
             # Ensure the object is a mesh.
-            if "mesh" not in name.lower():
+            if bpy_object.type != "MESH":
                 continue
 
-            # Get the mesh object.
-            mesh = bpy.data.objects.get(name)
-            assert mesh is not None, f"Mesh {mesh} is None. Check source glTF."
-
-            mesh_color = mesh.data.materials[0].diffuse_color
-
-            mesh.data.materials[0].use_nodes = True
-            links = mesh.data.materials[0].node_tree.links
-            nodes = mesh.data.materials[0].node_tree.nodes
+            # If a mesh is imported from a glTF, its parent node will be
+            # `Renderer Node`, and we will set its label value to its diffuse
+            # color. If a mesh is loaded from a blend file, its label value
+            # will be set to white (same as the background).
+            if bpy_object.parent.name == "Renderer Node":
+                mesh_color = bpy_object.data.materials[0].diffuse_color
+            else:
+                mesh_color = background_color
+            bpy_object.data.materials[0].use_nodes = True
+            links = bpy_object.data.materials[0].node_tree.links
+            nodes = bpy_object.data.materials[0].node_tree.nodes
 
             # Clear all material nodes before adding necessary nodes.
             nodes.clear()
