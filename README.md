@@ -31,6 +31,24 @@ work with any Python interpreter that supports our `requirements.txt`.
 
 See [examples](examples/README.md).
 
+# Credits
+
+The Drake-Blender project was created by the
+[Robotics Division](https://www.tri.global/our-work/robotics/)
+at Toyota Research Institute. Many other people have since contributed their
+talents. Here's an alphabetical list (note to contributors: *do add yourself*):
+
+* Bassam ul Haq
+* Cody Simpson
+* Eric Cousineau
+* Jeremy Nimmer
+* John Shepherd
+* Kunimatsu Hashimoto
+* Matthew Woehlke
+* Sean Curtis
+* Stephen McDowell
+* Zach Fang
+
 # Licensing
 
 Per [LICENSE.TXT](LICENSE.TXT), this module is offered under the
