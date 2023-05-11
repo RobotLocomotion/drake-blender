@@ -143,6 +143,7 @@ class Blender:
         scene.render.filepath = str(output_path)
         scene.render.resolution_x = params.width
         scene.render.resolution_y = params.height
+        scene.render.resolution_percentage = 100
         aspect_ratio = params.focal_y / params.focal_x
         scene.render.pixel_aspect_x = 1.0
         scene.render.pixel_aspect_y = aspect_ratio
