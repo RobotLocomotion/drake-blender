@@ -425,7 +425,7 @@ def main():
         help="Path to a blend file.")
     args = parser.parse_args()
 
-    prefix = "drake_render_gltf_blender_"
+    prefix = "drake_blender_"
     with tempfile.TemporaryDirectory(prefix=prefix) as temp_dir:
         app = ServerApp(temp_dir=temp_dir, blend_file=args.blend_file)
         app.run(host=args.host, port=args.port, debug=args.debug,

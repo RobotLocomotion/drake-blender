@@ -12,6 +12,7 @@ py_binary(
     data = [
         ":ball_bin.yaml",
         "//:server",
+        "@color_attribute_painting//file",
     ],
     deps = [
         "@bazel_tools//tools/python/runfiles",
