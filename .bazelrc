@@ -8,5 +8,8 @@ build --test_summary=terse
 # Inject DISPLAY into test runner environment for tests that use X.
 build --test_env=DISPLAY
 
+# Add `bazel test --config=lint` shortcut for linting.
+build:lint --test_tag_filters=lint
+
 # Try to import user-specific configuration local to workspace.
 try-import %workspace%/user.bazelrc
