@@ -1,6 +1,10 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load(
+    "@bazel_tools//tools/build_defs/repo:http.bzl",
+    "http_archive",
+    "http_file",
+)
 
 http_archive(
     name = "rules_python",
@@ -41,3 +45,18 @@ pip_parse(
 load("@examples_requirements//:requirements.bzl", "install_deps")
 
 install_deps()
+
+# This is a sample file from https://www.blender.org/download/demo-files/,
+# licensed under CC0. Credit goes to Ramil Roosileht for creating it,
+# https://twitter.com/limarest_art.
+http_file(
+    name = "color_attribute_painting",
+    urls = [
+        base + "/demo/sculpt_mode/color_attribute_painting.blend"
+        for base in [
+            "https://mirrors.ocf.berkeley.edu/blender",
+            "https://mirror.clarkson.edu/blender",
+        ]
+    ],
+    sha256 = "443b213229a4c863b2015beff623a700886c14928707a2fb24a6dd85fd80a207",
+)

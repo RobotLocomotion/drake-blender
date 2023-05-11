@@ -7,8 +7,8 @@
 atop
 [Blender](https://www.blender.org/).
 
-**This repository is currently a WORK IN PROGRESS and still has many bugs.
-Please check back later once the code has been battle-tested.**
+**This is a relatively new project and may still have bugs.
+Please share your issues and improvements on GitHub.**
 
 ## Compatibility
 
@@ -17,15 +17,23 @@ work with any Python interpreter that supports our `requirements.txt`.
 
 ## Building and testing
 
+From a git checkout of `drake-blender`:
+
 ```sh
 ./bazel test //...
 ```
 
 ## Running the render server
 
+From a git checkout of `drake-blender`:
+
 ```sh
 ./bazel run :server
 ```
+
+Note that `server.py` is self-contained. Instead of using Bazel, you can also
+run it as a standalone Python program so long as the `requirements.in` packages
+are available in your Python runtime environment.
 
 ## Examples
 
