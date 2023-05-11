@@ -73,9 +73,9 @@ drake==1.15.0 \
     --hash=sha256:b02badda6c6c4a578e46738d1130ebb1f3cb21c6147fb5f4b933705b17c344d0 \
     --hash=sha256:fa62cb4af3695f027e5e32457263b26feff09aa2c8df8dafa1593e5c0e232d3a
     # via -r examples/requirements.in
-fonttools==4.39.3 \
-    --hash=sha256:64c0c05c337f826183637570ac5ab49ee220eec66cf50248e8df527edfa95aeb \
-    --hash=sha256:9234b9f57b74e31b192c3fc32ef1a40750a8fbc1cd9837a7b7bfc4ca4a5c51d7
+fonttools==4.39.4 \
+    --hash=sha256:106caf6167c4597556b31a8d9175a3fdc0356fdcd70ab19973c3b0d4c893c461 \
+    --hash=sha256:dba8d7cdb8e2bac1b3da28c5ed5960de09e59a2fe7e63bb73f5a59e57b0430d2
     # via matplotlib
 kiwisolver==1.4.4 \
     --hash=sha256:02f79693ec433cb4b5f51694e8477ae83b3205768a6fb48ffba60549080e295b \

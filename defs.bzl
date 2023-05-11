@@ -10,11 +10,11 @@ def pycodestyle_test(name, srcs):
     py_test(
         name = name,
         size = "small",
-        srcs = ["@requirements_pycodestyle//:rules_python_wheel_entry_point_pycodestyle.py"],
-        main = "@requirements_pycodestyle//:rules_python_wheel_entry_point_pycodestyle.py",
+        srcs = ["@test_requirements_pycodestyle//:rules_python_wheel_entry_point_pycodestyle.py"],
+        main = "@test_requirements_pycodestyle//:rules_python_wheel_entry_point_pycodestyle.py",
         data = [":_{}_data".format(name)],
         args = ["$(rootpaths :_{}_data)".format(name)],
         deps = [
-            "@requirements_pycodestyle//:rules_python_wheel_entry_point_pycodestyle",
+            "@test_requirements_pycodestyle//:rules_python_wheel_entry_point_pycodestyle",
         ]
     )
