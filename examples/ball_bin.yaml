@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT-0
-simulation_duration: 3.0
+simulation_duration: 2.0
 directives:
 - add_model:
     name: bin
@@ -7,6 +7,8 @@ directives:
 - add_weld:
     parent: world
     child: bin::bin_base
+    X_PC:
+      translation: [0, 0, 0.20]
 - add_model:
     name: ball_1
     file: package://drake/examples/manipulation_station/models/sphere.sdf
@@ -30,15 +32,19 @@ directives:
 - add_model:
     name: ball_6
     file: package://drake/examples/manipulation_station/models/sphere.sdf
-    default_free_body_pose: { base_link: { translation: [0.03, 0.06, 1.5] } }
+    default_free_body_pose: { base_link: { translation: [0.03, 0.06, 1.8] } }
 - add_model:
     name: ball_7
     file: package://drake/examples/manipulation_station/models/sphere.sdf
-    default_free_body_pose: { base_link: { translation: [0.02, 0.07, 1.5] } }
+    default_free_body_pose: { base_link: { translation: [0.02, 0.07, 2.1] } }
 - add_model:
     name: ball_8
     file: package://drake/examples/manipulation_station/models/sphere.sdf
-    default_free_body_pose: { base_link: { translation: [0.01, 0.08, 1.5] } }
+    default_free_body_pose: { base_link: { translation: [0.01, 0.08, 2.4] } }
+- add_model:
+    name: ball_9
+    file: package://drake/examples/manipulation_station/models/sphere.sdf
+    default_free_body_pose: { base_link: { translation: [0.00, 0.09, 2.7] } }
 cameras:
   blender_camera:
     name: blender_camera
@@ -47,8 +53,8 @@ cameras:
     height: 1024
     fps: 8.0
     X_PB:
-      translation: [1.0, 0.8, 1.25]
-      rotation: !Rpy { deg: [-130, 5, 125] }
+      translation: [-4.0, -3.2, 4.8]
+      rotation: !Rpy { deg: [-130, 5, -55] }
   vtk_camera:
     name: vtk_camera
     renderer_name: vtk
@@ -57,5 +63,5 @@ cameras:
     height: 1024
     fps: 8.0
     X_PB:
-      translation: [1.0, 0.8, 1.25]
-      rotation: !Rpy { deg: [-130, 5, 125] }
+      translation: [-4.0, -3.2, 4.8]
+      rotation: !Rpy { deg: [-130, 5, -55] }
