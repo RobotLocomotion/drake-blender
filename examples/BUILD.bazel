@@ -12,6 +12,7 @@ py_binary(
     data = [
         ":ball_bin.yaml",
         "//:server",
+        "@color_attribute_painting//file",
     ],
     deps = [
         "@bazel_tools//tools/python/runfiles",
@@ -23,7 +24,10 @@ py_binary(
 py_test(
     name = "ball_bin_test",
     srcs = ["test/ball_bin_test.py"],
-    data = [":ball_bin"],
+    data = [
+        ":ball_bin",
+        ":test/bpy_use_cycles.py",
+    ],
 )
 
 pycodestyle_test(
