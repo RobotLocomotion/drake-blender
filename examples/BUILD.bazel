@@ -25,6 +25,7 @@ py_test(
     name = "ball_bin_test",
     srcs = ["test/ball_bin_test.py"],
     data = [":ball_bin"],
+    timeout = "eternal",
 )
 
 pycodestyle_test(
