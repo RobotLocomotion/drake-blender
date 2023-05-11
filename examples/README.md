@@ -34,3 +34,4 @@ $ ./bazel run //examples:ball_bin -- --still
 
 Thanks to Ramil Roosileht (https://twitter.com/limarest_art) for creating
 the blender scene we use (from https://www.blender.org/download/demo-files/).
+

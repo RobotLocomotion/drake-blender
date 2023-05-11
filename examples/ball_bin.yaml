@@ -65,3 +65,4 @@ cameras:
     X_PB:
       translation: [-4.0, -3.2, 4.8]
       rotation: !Rpy { deg: [-130, 5, -55] }
+

@@ -44,3 +44,4 @@ compile_pip_requirements(
     requirements_txt = "requirements.txt",
     tags = ["manual"],
 )
+
