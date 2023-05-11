@@ -30,6 +30,9 @@ py_test(
         "test/4_color_texture.png",
         "test/depth.png",
         "test/label.png",
+        # TODO(zachfang): Consider generating this image in the test code if
+        # it's easier to maintain for our future use cases.
+        "test/one_gltf_one_blend.label.png",
         "test/one_rgba_box.gltf",
         "test/one_rgba_one_texture_boxes.color.png",
         "test/one_rgba_one_texture_boxes.gltf",
