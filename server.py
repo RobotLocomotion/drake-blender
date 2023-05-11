@@ -94,8 +94,10 @@ class Blender:
     should only ever create one instance of this class.
     """
 
-    def __init__(self, *, blend_file: Path = None):
+    def __init__(self, *, blend_file: Path = None,
+                 bpy_settings_file: Path = None):
         self._blend_file = blend_file
+        self._bpy_settings_file = bpy_settings_file
 
     def reset_scene(self):
         """
@@ -128,6 +130,12 @@ class Blender:
             bpy.ops.wm.open_mainfile(filepath=str(self._blend_file))
         else:
             self.add_default_light_source()
+
+        # Apply the user's custom settings.
+        if self._bpy_settings_file:
+            with open(self._bpy_settings_file) as f:
+                code = compile(f.read(), self._bpy_settings_file, "exec")
+                exec(code, {"bpy": bpy}, dict())
 
         # Import a glTF file. Note that the Blender glTF importer imposes a
         # 90-degree rotation along X-axis when loading meshes. Thus, we
@@ -311,11 +319,13 @@ class Blender:
 class ServerApp(flask.Flask):
     """The long-running Flask server application."""
 
-    def __init__(self, *, temp_dir, blend_file=None):
+    def __init__(self, *, temp_dir, blend_file: Path = None,
+                 bpy_settings_file: Path = None):
         super().__init__("drake_render_gltf_blender")
 
         self._temp_dir = temp_dir
-        self._blender = Blender(blend_file=blend_file)
+        self._blender = Blender(blend_file=blend_file,
+                                bpy_settings_file=bpy_settings_file)
 
         self.add_url_rule("/", view_func=self._root_endpoint)
 
@@ -421,13 +431,21 @@ def main():
         "--debug", action="store_true",
         help="When true, flask reloads server.py when it changes.")
     parser.add_argument(
-        "--blend_file", type=str, default=None,
-        help="Path to a blend file.")
+        "--blend_file", type=Path, metavar="FILE",
+        help="Path to a *.blend file.")
+    parser.add_argument(
+        "--bpy_settings_file", type=Path, metavar="FILE",
+        help="Path to a *.py file that the server will exec() to configure "
+        "blender. For example, the settings file might contain the line "
+        "`bpy.context.scene.render.engine = \"EEVEE\"` (with no backticks). "
+        "The settings file will be applied after loading the --blend_file "
+        "(if any) so that it has priority.")
     args = parser.parse_args()
 
-    prefix = "drake_render_gltf_blender_"
+    prefix = "drake_blender_"
     with tempfile.TemporaryDirectory(prefix=prefix) as temp_dir:
-        app = ServerApp(temp_dir=temp_dir, blend_file=args.blend_file)
+        app = ServerApp(temp_dir=temp_dir, blend_file=args.blend_file,
+                        bpy_settings_file=args.bpy_settings_file)
         app.run(host=args.host, port=args.port, debug=args.debug,
                 threaded=False)
 

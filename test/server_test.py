@@ -4,6 +4,7 @@ import test.unittest_path_cleaner  # Disable Ubuntu packages.
 
 from collections import namedtuple
 import datetime
+import json
 import os
 from pathlib import Path
 import re
@@ -266,6 +267,48 @@ class BlendFileServerTest(ServerFixture):
             reference_image_path="test/one_gltf_one_blend.label.png",
             threshold=LABEL_PIXEL_THRESHOLD,
         )
+
+
+class ExtraSettingsServerTest(ServerFixture):
+    """Tests the server against custom settings files."""
+
+    def setUp(self):
+        # Create a placeholder settings file.
+        tmpdir = Path(os.environ["TEST_TMPDIR"])
+        self._settings_path = tmpdir / "bpy_settings.py"
+        with open(self._settings_path, "w", encoding="utf-8") as f:
+            pass
+
+        # Tell the server to use it.
+        args = [f"--bpy_settings_file={self._settings_path}"]
+        super().setUp(extra_server_args=args)
+
+    def _call_rpc(self, status_code=200):
+        """Makes a basic RPC call and returns the http response."""
+        with open("test/one_rgba_box.gltf", "rb") as scene:
+            response = requests.post(
+                url=f"http://127.0.0.1:{self.server_port}/render",
+                data=self._create_request_form(image_type="color"),
+                files={"scene": scene},
+                stream=True,
+            )
+        return response
+
+    def test_settings_no_crash(self):
+        """Checks that a valid settings file produces no errors."""
+        with open(self._settings_path, "w", encoding="utf-8") as f:
+            f.write("bpy.context.scene.render.threads = 1")
+        response = self._call_rpc()
+        self.assertEqual(response.status_code, 200)
+
+    def test_settings_not_noop(self):
+        """Checks that an invalid settings file produces errors."""
+        with open(self._settings_path, "w", encoding="utf-8") as f:
+            f.write("raise RuntimeError('Kilroy was here')")
+        response = self._call_rpc()
+        self.assertEqual(response.status_code, 500)
+        error = json.loads(response.text)
+        self.assertIn("Kilroy was here", error["message"])
 
 
 if __name__ == "__main__":
