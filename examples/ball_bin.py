@@ -11,6 +11,7 @@ import os
 from pathlib import Path
 import time
 import typing
+import socket
 import subprocess
 
 from bazel_tools.tools.python.runfiles import runfiles
@@ -172,10 +173,23 @@ def main():
     # Launch the server (if requested).
     if args.server:
         server = _find_resource("__main__/server")
-        server_process = subprocess.Popen(server)
-        # TODO(jwnimmer-tri) Wait until the server is ready.
-        time.sleep(1)
-        assert server_process.poll() is None
+        blend_file = _find_resource("color_attribute_painting/file/downloaded")
+        # XXX Use a better log path, and echo it to the console.
+        log_file = open("/tmp/ball-bin-server-log.txt", "w")
+        server_process = subprocess.Popen([
+            server,
+            f"--blend_file={blend_file}",
+        ], stdout=log_file, stderr=subprocess.STDOUT)
+        # Wait until the server is ready.
+        while True:
+            with socket.socket() as s:
+                try:
+                    s.connect(("127.0.0.1", 8000))
+                    # Success!
+                    break
+                except ConnectionRefusedError as e:
+                    time.sleep(0.1)
+            assert server_process.poll() is None
     else:
         server_process = None
 
@@ -185,6 +199,7 @@ def main():
     finally:
         if server_process is not None:
             server_process.terminate()
+            log_file.flush()
 
 
 if __name__ == "__main__":
