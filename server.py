@@ -294,7 +294,7 @@ class Blender:
 
         # Convert depth measurements via a MapValueNode. The depth values are
         # measured in meters, and thus they are converted to millimeters first.
-        # Blender scales the pixel values by 65535 (2^16 -1) when producing an
+        # Blender scales the pixel values by 65535 (2^16 -1) when producing a
         # UINT16 image, so we need to offset that to get the correct UINT16
         # depth.
         assert (

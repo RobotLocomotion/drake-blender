@@ -182,7 +182,8 @@ class RpcOnlyServerTest(ServerFixture):
         )
 
     # Test color and depth image rendering given a rgba and a textured mesh.
-    # Note: Rendering a label image is not applicable for any textured objects.
+    # (We do not check a label image because by definition an RPC for a label
+    # image will never contain any textured objects.)
     def test_texture_color_render(self):
         self._render_and_check(
             gltf_path="test/one_rgba_one_texture_boxes.gltf",
