@@ -5,4 +5,4 @@
 ## Terms and Conditions
 
 When you make a contribution to this project, you are agreeing to offer your
-contribition under the same [LICENSE.TXT](LICENSE.TXT) as the project.
+contribution under the same [LICENSE.TXT](LICENSE.TXT) as the project.
