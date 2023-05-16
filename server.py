@@ -138,8 +138,9 @@ class Blender:
                 exec(code, {"bpy": bpy}, dict())
 
         # Import a glTF file. Note that the Blender glTF importer imposes a
-        # 90-degree rotation along X-axis when loading meshes. Thus, we
+        # +90 degree rotation around the X-axis when loading meshes. Thus, we
         # counterbalance the rotation right after the glTF-loading.
+        # TODO(#39) This is very suspicious. Get to the bottom of it.
         bpy.ops.import_scene.gltf(filepath=str(params.scene))
         bpy.ops.transform.rotate(
             value=math.pi/2, orient_axis='X', orient_type='GLOBAL'
@@ -169,6 +170,10 @@ class Blender:
         # Set the clipping planes using {min, max}_depth when rendering depth
         # images; otherwise, `near` and `far` are set for color and label
         # images.
+        # TODO(#38) This clipping logic fails to implement kTooClose.
+        # When there is geometry within [near,far] clip but outside [min,max]
+        # depth, we should return zero (too close) not maxint (too far). Fix
+        # the code here and add regression tests for both too-close and -far.
         camera.data.clip_start = (
             params.min_depth if params.min_depth else params.near
         )
@@ -294,7 +299,7 @@ class Blender:
 
         # Convert depth measurements via a MapValueNode. The depth values are
         # measured in meters, and thus they are converted to millimeters first.
-        # Blender scales the pixel values by 65535 (2^16 -1) when producing an
+        # Blender scales the pixel values by 65535 (2^16 -1) when producing a
         # UINT16 image, so we need to offset that to get the correct UINT16
         # depth.
         assert (
