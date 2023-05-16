@@ -138,8 +138,9 @@ class Blender:
                 exec(code, {"bpy": bpy}, dict())
 
         # Import a glTF file. Note that the Blender glTF importer imposes a
-        # 90-degree rotation along X-axis when loading meshes. Thus, we
+        # +90 degree rotation around the X-axis when loading meshes. Thus, we
         # counterbalance the rotation right after the glTF-loading.
+        # TODO(#39) This is very suspicious. Get to the bottom of it.
         bpy.ops.import_scene.gltf(filepath=str(params.scene))
         bpy.ops.transform.rotate(
             value=math.pi/2, orient_axis='X', orient_type='GLOBAL'
@@ -151,9 +152,12 @@ class Blender:
         scene.render.filepath = str(output_path)
         scene.render.resolution_x = params.width
         scene.render.resolution_y = params.height
-        aspect_ratio = params.focal_y / params.focal_x
-        scene.render.pixel_aspect_x = 1.0
-        scene.render.pixel_aspect_y = aspect_ratio
+        if params.focal_x > params.focal_y:
+            scene.render.pixel_aspect_x = 1.0
+            scene.render.pixel_aspect_y = params.focal_x / params.focal_y
+        else:
+            scene.render.pixel_aspect_x = params.focal_y / params.focal_x
+            scene.render.pixel_aspect_y = 1.0
 
         # Set camera parameters.
         camera = bpy.data.objects.get("Camera Node")
@@ -169,6 +173,10 @@ class Blender:
         # Set the clipping planes using {min, max}_depth when rendering depth
         # images; otherwise, `near` and `far` are set for color and label
         # images.
+        # TODO(#38) This clipping logic fails to implement kTooClose.
+        # When there is geometry in the range [near, min], we should return
+        # zero (i.e., too close). As is, it will return non-zero. Fix the code
+        # here and add regression tests for both too-close and -far.
         camera.data.clip_start = (
             params.min_depth if params.min_depth else params.near
         )
@@ -181,17 +189,9 @@ class Blender:
             params.center_y - 0.5 * params.height
         ) / params.width
 
-        # TODO(bassamul.haq/zachfang): Currently, `camera.data.angle` will not
-        # be set if the values of fov_x and fov_y are different. The code path
-        # needs to be tested.
-        if params.fov_x == params.fov_y:
-            camera.data.lens_unit = "FOV"
-            camera.data.angle = params.fov_x
-        else:
-            _logger.warning(
-                f"fov_x {params.fov_x} != fov_y {params.fov_y}. "
-                "'camera.data.angle' is not set."
-            )
+        # Setting FOV Y also implicitly sets FOV X.
+        camera.data.lens_unit = "FOV"
+        camera.data.angle_y = params.fov_y
 
         # Set image_type specific functionality.
         if params.image_type == "color":
@@ -294,7 +294,7 @@ class Blender:
 
         # Convert depth measurements via a MapValueNode. The depth values are
         # measured in meters, and thus they are converted to millimeters first.
-        # Blender scales the pixel values by 65535 (2^16 -1) when producing an
+        # Blender scales the pixel values by 65535 (2^16 -1) when producing a
         # UINT16 image, so we need to offset that to get the correct UINT16
         # depth.
         assert (

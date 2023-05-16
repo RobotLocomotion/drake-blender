@@ -182,7 +182,8 @@ class RpcOnlyServerTest(ServerFixture):
         )
 
     # Test color and depth image rendering given a rgba and a textured mesh.
-    # Note: Rendering a label image is not applicable for any textured objects.
+    # (We do not check a label image because by definition an RPC for a label
+    # image will never contain any textured objects.)
     def test_texture_color_render(self):
         self._render_and_check(
             gltf_path="test/one_rgba_one_texture_boxes.gltf",
@@ -203,7 +204,11 @@ class RpcOnlyServerTest(ServerFixture):
         """Tests the consistency of the render results from consecutive
         requests. Each image type is first rendered and compared with the
         ground truth images. A second image is then rendered and expected to be
-        pixel-identical as the first one.
+        pixel-identical as the first one. As with all things Drake, we expect
+        reproducible simulations, so if there is any randomness in the render
+        pipeline it's the responsibility of the server to configure it so that
+        the exact same RPC call produces the exact same image output no matter
+        how it's called or how many times it's called.
         """
         TestCase = namedtuple(
             "TestCase", ["image_type", "reference_image", "threshold"]
@@ -227,7 +232,7 @@ class RpcOnlyServerTest(ServerFixture):
             returned_image_paths.append(first_image)
 
         for index, test_case in enumerate(test_cases):
-            second_image = self._render_and_check(
+            self._render_and_check(
                 gltf_path=DEFAULT_GLTF_FILE,
                 image_type=test_case.image_type,
                 reference_image_path=returned_image_paths[index],

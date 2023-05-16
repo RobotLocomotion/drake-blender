@@ -15,14 +15,6 @@ Please share your issues and improvements on GitHub.**
 This software is only tested on Ubuntu 22.04 "Jammy", but should probably
 work with any Python interpreter that supports our `requirements.txt`.
 
-## Building and testing
-
-From a git checkout of `drake-blender`:
-
-```sh
-./bazel test //...
-```
-
 ## Running the render server
 
 From a git checkout of `drake-blender`:
@@ -38,6 +30,14 @@ are available in your Python runtime environment.
 ## Examples
 
 See [examples](examples/README.md).
+
+## Testing (for developers)
+
+From a git checkout of `drake-blender`:
+
+```sh
+./bazel test //...
+```
 
 # Credits
 
