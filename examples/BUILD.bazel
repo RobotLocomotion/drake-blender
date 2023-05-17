@@ -2,7 +2,7 @@
 
 load("@rules_python//python:defs.bzl", "py_binary", "py_test")
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
-load("//:defs.bzl", "pycodestyle_test")
+load("//:defs.bzl", "py_lint_test")
 
 exports_files(glob(["**"]))
 
@@ -30,12 +30,14 @@ py_test(
     ],
 )
 
-pycodestyle_test(
-    name = "pycodestyle_test",
+py_lint_test(
+    name = "py_lint_test",
     srcs = [
         "ball_bin.py",
         "test/ball_bin_test.py",
     ],
+    # TODO(jwnimmer-tri) Enable this, after platform review of 'examples/**'.
+    use_black = False,
 )
 
 compile_pip_requirements(

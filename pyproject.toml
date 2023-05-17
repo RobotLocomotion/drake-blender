@@ -1,0 +1,4 @@
+# Contains configuration settings for linting Python.
+
+[tool.black]
+line-length = 79

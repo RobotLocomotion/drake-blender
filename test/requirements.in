@@ -3,6 +3,7 @@
 # To compile this file into requirements.txt, run:
 # ./bazel run //:test_requirements.update -- --upgrade
 
+black
 numpy
 pillow
 pycodestyle

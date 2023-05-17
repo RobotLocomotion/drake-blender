@@ -94,8 +94,9 @@ class Blender:
     should only ever create one instance of this class.
     """
 
-    def __init__(self, *, blend_file: Path = None,
-                 bpy_settings_file: Path = None):
+    def __init__(
+        self, *, blend_file: Path = None, bpy_settings_file: Path = None
+    ):
         self._blend_file = blend_file
         self._bpy_settings_file = bpy_settings_file
 
@@ -143,7 +144,7 @@ class Blender:
         # TODO(#39) This is very suspicious. Get to the bottom of it.
         bpy.ops.import_scene.gltf(filepath=str(params.scene))
         bpy.ops.transform.rotate(
-            value=math.pi/2, orient_axis='X', orient_type='GLOBAL'
+            value=math.pi / 2, orient_axis="X", orient_type="GLOBAL"
         )
 
         # Set rendering parameters.
@@ -221,7 +222,10 @@ class Blender:
         world_nodes = bpy.data.worlds["World"].node_tree.nodes
         # Set the background.
         world_nodes["Background"].inputs[0].default_value = (
-            _UINT16_MAX, _UINT16_MAX, _UINT16_MAX, 1
+            _UINT16_MAX,
+            _UINT16_MAX,
+            _UINT16_MAX,
+            1,
         )
 
         # Update the render method to use depth image.
@@ -319,19 +323,29 @@ class Blender:
 class ServerApp(flask.Flask):
     """The long-running Flask server application."""
 
-    def __init__(self, *, temp_dir, blend_file: Path = None,
-                 bpy_settings_file: Path = None):
+    def __init__(
+        self,
+        *,
+        temp_dir,
+        blend_file: Path = None,
+        bpy_settings_file: Path = None,
+    ):
         super().__init__("drake_render_gltf_blender")
 
         self._temp_dir = temp_dir
-        self._blender = Blender(blend_file=blend_file,
-                                bpy_settings_file=bpy_settings_file)
+        self._blender = Blender(
+            blend_file=blend_file, bpy_settings_file=bpy_settings_file
+        )
 
         self.add_url_rule("/", view_func=self._root_endpoint)
 
         endpoint = "/render"
-        self.add_url_rule(rule=endpoint, endpoint=endpoint, methods=["POST"],
-                          view_func=self._render_endpoint)
+        self.add_url_rule(
+            rule=endpoint,
+            endpoint=endpoint,
+            methods=["POST"],
+            view_func=self._render_endpoint,
+        )
 
     def _root_endpoint(self):
         """Displays a banner page at the server root."""
@@ -363,10 +377,7 @@ class ServerApp(flask.Flask):
         result = dict()
 
         # Compute a lookup table for known form field names.
-        param_fields = {
-            x.name: x
-            for x in dc.fields(RenderParams)
-        }
+        param_fields = {x.name: x for x in dc.fields(RenderParams)}
         del param_fields["scene"]
 
         # Copy all of the form data into the result.
@@ -422,32 +433,50 @@ class ServerApp(flask.Flask):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--host", type=str, default="127.0.0.1",
-        help="URL to host on, default: %(default)s.")
+        "--host",
+        type=str,
+        default="127.0.0.1",
+        help="URL to host on, default: %(default)s.",
+    )
     parser.add_argument(
-        "--port", type=int, default=8000,
-        help="Port to host on, default: %(default)s.")
+        "--port",
+        type=int,
+        default=8000,
+        help="Port to host on, default: %(default)s.",
+    )
     parser.add_argument(
-        "--debug", action="store_true",
-        help="When true, flask reloads server.py when it changes.")
+        "--debug",
+        action="store_true",
+        help="When true, flask reloads server.py when it changes.",
+    )
     parser.add_argument(
-        "--blend_file", type=Path, metavar="FILE",
-        help="Path to a *.blend file.")
+        "--blend_file",
+        type=Path,
+        metavar="FILE",
+        help="Path to a *.blend file.",
+    )
     parser.add_argument(
-        "--bpy_settings_file", type=Path, metavar="FILE",
+        "--bpy_settings_file",
+        type=Path,
+        metavar="FILE",
         help="Path to a *.py file that the server will exec() to configure "
         "blender. For example, the settings file might contain the line "
-        "`bpy.context.scene.render.engine = \"EEVEE\"` (with no backticks). "
+        '`bpy.context.scene.render.engine = "EEVEE"` (with no backticks). '
         "The settings file will be applied after loading the --blend_file "
-        "(if any) so that it has priority.")
+        "(if any) so that it has priority.",
+    )
     args = parser.parse_args()
 
     prefix = "drake_blender_"
     with tempfile.TemporaryDirectory(prefix=prefix) as temp_dir:
-        app = ServerApp(temp_dir=temp_dir, blend_file=args.blend_file,
-                        bpy_settings_file=args.bpy_settings_file)
-        app.run(host=args.host, port=args.port, debug=args.debug,
-                threaded=False)
+        app = ServerApp(
+            temp_dir=temp_dir,
+            blend_file=args.blend_file,
+            bpy_settings_file=args.bpy_settings_file,
+        )
+        app.run(
+            host=args.host, port=args.port, debug=args.debug, threaded=False
+        )
 
 
 if __name__ == "__main__":

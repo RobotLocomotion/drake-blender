@@ -2,9 +2,12 @@
 
 load("@rules_python//python:defs.bzl", "py_binary", "py_test")
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
-load(":defs.bzl", "pycodestyle_test")
+load(":defs.bzl", "py_lint_test")
 
-exports_files(["server.py"])
+exports_files([
+    "pyproject.toml",
+    "server.py"
+])
 
 py_binary(
     name = "server",
@@ -48,14 +51,23 @@ py_test(
     ],
 )
 
-pycodestyle_test(
-    name = "pycodestyle_test",
+py_lint_test(
+    name = "py_lint_test",
     srcs = [
         "bazel",
         "server.py",
         "test/server_test.py",
         "test/unittest_path_cleaner.py",
     ],
+)
+
+py_binary(
+    name = "black",
+    testonly = True,
+    srcs = ["@test_requirements_black//:rules_python_wheel_entry_point_black.py"],
+    main = "@test_requirements_black//:rules_python_wheel_entry_point_black.py",
+    deps = ["@test_requirements_black//:rules_python_wheel_entry_point_black"],
+    tags = ["manual"],
 )
 
 compile_pip_requirements(
