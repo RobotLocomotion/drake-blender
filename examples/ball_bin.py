@@ -181,13 +181,13 @@ def main():
         "Refer to its documentation for details.")
     args = parser.parse_args()
 
-    scenario_file = _find_resource("__main__/examples/ball_bin.yaml")
+    scenario_file = _find_resource("drake_blender/examples/ball_bin.yaml")
     setattr(args, "scenario_file", scenario_file)
 
     # Launch the server (if requested).
     if args.server:
         logging.info("Starting drake-blender server")
-        server = _find_resource("__main__/server")
+        server = _find_resource("drake_blender/server")
         blend_file = _find_resource("color_attribute_painting/file/downloaded")
         log_file = open(os.environ["TMPDIR"] + "/server-log.txt", "w")
         # TODO(jwnimmer-tri) Echo the log file to the console.
