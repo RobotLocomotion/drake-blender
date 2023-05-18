@@ -39,6 +39,20 @@ From a git checkout of `drake-blender`:
 ./bazel test //...
 ```
 
+### Linting
+
+Check for lint:
+
+```sh
+./bazel test //... --config=lint
+```
+
+Fix all lint:
+
+```sh
+./fix_lint.sh
+```
+
 # Credits
 
 The Drake-Blender project was created by the

@@ -60,9 +60,9 @@ def _apply_bazeliskrc():
     # We'll sherpa the settings manually via the environment.
     with open(Path(__file__).resolve().with_name(".bazeliskrc")) as f:
         for line in f.readlines():
-            line = line.split('#', maxsplit=1)[0].strip()
+            line = line.split("#", maxsplit=1)[0].strip()
             if line:
-                name, value = line.split('=', maxsplit=1)
+                name, value = line.split("=", maxsplit=1)
                 os.environ[name] = value
 
 

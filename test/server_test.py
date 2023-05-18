@@ -36,6 +36,7 @@ class ServerFixture(unittest.TestCase):
     server subprocess, sending rendering requests, and conducting the per-pixel
     image differencing.
     """
+
     def setUp(self, extra_server_args=None):
         # Start the server on the other process. Bind to port 0 and let the OS
         # assign an available port later on.
@@ -157,6 +158,7 @@ class RpcOnlyServerTest(ServerFixture):
     """Tests the server with only RPC data as input. No additional command line
     arguments nor *.blend files are involved.
     """
+
     def test_color_render(self):
         self._render_and_check(
             gltf_path=DEFAULT_GLTF_FILE,
@@ -242,8 +244,8 @@ class RpcOnlyServerTest(ServerFixture):
 
 
 class BlendFileServerTest(ServerFixture):
-    """Tests the server with both RPC data and a blend file as input.
-    """
+    """Tests the server with both RPC data and a blend file as input."""
+
     def setUp(self):
         super().setUp(extra_server_args=[f"--blend_file={DEFAULT_BLEND_FILE}"])
 
