@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT-0
+
 import os
 from pathlib import Path
 import subprocess
