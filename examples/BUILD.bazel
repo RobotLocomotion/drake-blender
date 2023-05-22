@@ -17,6 +17,7 @@ py_binary(
     deps = [
         "@bazel_tools//tools/python/runfiles",
         "@examples_requirements_drake//:pkg",
+        "@examples_requirements_opencv_python//:pkg",
         "@examples_requirements_tqdm//:pkg",
     ],
 )
