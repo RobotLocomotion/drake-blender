@@ -104,23 +104,23 @@ class _ProgressBar:
 def _run(args):
     """Runs the demo."""
     scenario = yaml_load_typed(
-        schema=Scenario,
-        filename=args.scenario_file,
-        defaults=Scenario())
+        schema=Scenario, filename=args.scenario_file, defaults=Scenario()
+    )
 
     # Create the scene.
     builder = DiagramBuilder()
     plant, scene_graph = AddMultibodyPlant(
-        config=MultibodyPlantConfig(),
-        builder=builder)
+        config=MultibodyPlantConfig(), builder=builder
+    )
     added_models = ProcessModelDirectives(
-        directives=ModelDirectives(directives=scenario.directives),
-        plant=plant)
+        directives=ModelDirectives(directives=scenario.directives), plant=plant
+    )
     plant.Finalize()
 
     # Add remote rendering capability to scene graph.
-    blender_engine = MakeRenderEngineGltfClient(RenderEngineGltfClientParams(
-        base_url="http://127.0.0.1:8000"))
+    blender_engine = MakeRenderEngineGltfClient(
+        RenderEngineGltfClientParams(base_url="http://127.0.0.1:8000")
+    )
     scene_graph.AddRenderer("blender", blender_engine)
     vtk_engine = MakeRenderEngineVtk(RenderEngineVtkParams())
     scene_graph.AddRenderer("vtk", vtk_engine)
@@ -140,10 +140,12 @@ def _run(args):
                 port_name="color_image",
                 file_name_format=f"./{name}",
                 publish_period=1.0,
-                start_time=0.0)
+                start_time=0.0,
+            )
             builder.Connect(
                 sensor.GetOutputPort("color_image"),
-                writer.GetInputPort("color_image"))
+                writer.GetInputPort("color_image"),
+            )
         else:
             writer = VideoWriter(filename=f"{name}.mp4", fps=16, backend="cv2")
             builder.AddSystem(writer)
@@ -169,16 +171,23 @@ def _run(args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--still", action="store_true",
+        "--still",
+        action="store_true",
         help="Don't create a video; instead, capture a single photograph of "
-             "the initial conditions.")
+        "the initial conditions.",
+    )
     parser.add_argument(
-        "--no-server", dest="server", action="store_false",
-        help="Don't automatically launch the blender server.")
+        "--no-server",
+        dest="server",
+        action="store_false",
+        help="Don't automatically launch the blender server.",
+    )
     parser.add_argument(
-        "--bpy_settings_file", metavar="FILE",
+        "--bpy_settings_file",
+        metavar="FILE",
         help="This flag is forward along to the server, unchanged. "
-        "Refer to its documentation for details.")
+        "Refer to its documentation for details.",
+    )
     args = parser.parse_args()
 
     scenario_file = _find_resource("drake_blender/examples/ball_bin.yaml")
@@ -197,9 +206,9 @@ def main():
         ]
         if args.bpy_settings_file:
             command.append(f"--bpy_settings_file={args.bpy_settings_file}")
-        server_process = subprocess.Popen(command,
-                                          stdout=log_file,
-                                          stderr=subprocess.STDOUT)
+        server_process = subprocess.Popen(
+            command, stdout=log_file, stderr=subprocess.STDOUT
+        )
         # Wait until the server is ready.
         while True:
             with socket.socket() as s:
@@ -239,9 +248,12 @@ if __name__ == "__main__":
     # Tell Drake it that even though it's running from Bazel it's not a source
     # build so it needs to use resources from the wheel file not Bazel.
     # TODO(jwnimmer-tri) As of Drake >= v1.16.0, this is no longer necessary.
-    os.environ["DRAKE_RESOURCE_ROOT"] = str(_find_resource(
-        "examples_requirements_drake/site-packages/"
-        "pydrake/share/drake/package.xml").parent.parent)
+    os.environ["DRAKE_RESOURCE_ROOT"] = str(
+        _find_resource(
+            "examples_requirements_drake/site-packages/"
+            "pydrake/share/drake/package.xml"
+        ).parent.parent
+    )
 
     # Create output files in $PWD, not runfiles.
     if "BUILD_WORKING_DIRECTORY" in os.environ:

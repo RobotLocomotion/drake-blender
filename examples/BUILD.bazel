@@ -37,8 +37,6 @@ py_lint_test(
         "ball_bin.py",
         "test/ball_bin_test.py",
     ],
-    # TODO(jwnimmer-tri) Enable this, after platform review of 'examples/**'.
-    use_black = False,
 )
 
 compile_pip_requirements(
