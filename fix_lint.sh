@@ -8,8 +8,13 @@ set -eu -o pipefail
 me=$(python3 -c 'import os; print(os.path.realpath("'"$0"'"))')
 cd $(dirname "$me")
 
-./bazel build //:black
+./bazel build //:black //:isort
 ./.bazel/bin/black \
+    bazel \
+    *.py \
+    */*.py \
+    */*/*.py
+./.bazel/bin/isort \
     bazel \
     *.py \
     */*.py \
