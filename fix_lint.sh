@@ -12,8 +12,13 @@ cd $(dirname "$me")
     *.bazel \
     *.bzl \
     */*.bazel
-./bazel build //:black
+./bazel build //:black //:isort
 ./.bazel/bin/black \
+    bazel \
+    *.py \
+    */*.py \
+    */*/*.py
+./.bazel/bin/isort \
     bazel \
     *.py \
     */*.py \

@@ -123,6 +123,15 @@ py_binary(
     deps = ["@test_requirements_black//:rules_python_wheel_entry_point_black"],
 )
 
+py_binary(
+    name = "isort",
+    testonly = True,
+    srcs = ["@test_requirements_isort//:rules_python_wheel_entry_point_isort.py"],
+    main = "@test_requirements_isort//:rules_python_wheel_entry_point_isort.py",
+    tags = ["manual"],
+    deps = ["@test_requirements_isort//:rules_python_wheel_entry_point_isort"],
+)
+
 compile_pip_requirements(
     name = "requirements",
     requirements_in = "requirements.in",

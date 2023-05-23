@@ -1,6 +1,10 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
+# isort: off
+
 import test.unittest_path_cleaner  # Disable Ubuntu packages.
+
+# isort: on
 
 from collections import namedtuple
 import datetime
@@ -15,8 +19,8 @@ import sys
 import time
 import unittest
 
-import numpy as np
 from PIL import Image
+import numpy as np
 import requests
 
 COLOR_PIXEL_THRESHOLD = 0
