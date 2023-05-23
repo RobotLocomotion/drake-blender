@@ -2,7 +2,13 @@
 
 load("@rules_python//python:defs.bzl", "py_test")
 
-def py_lint_test(name, srcs, *, use_black = True, use_codestyle = True):
+def py_lint_test(
+        name,
+        srcs,
+        *,
+        use_black = True,
+        use_codestyle = True,
+        use_isort = True):
     """Adds Python linter checks for the given `srcs`."""
     native.filegroup(
         name = "_{}_data".format(name),
@@ -38,6 +44,25 @@ def py_lint_test(name, srcs, *, use_black = True, use_codestyle = True):
         tags = ["lint", "black"],
         deps = [
             "@test_requirements_black//:rules_python_wheel_entry_point_black",
+        ],
+    )
+
+    (not use_isort) or py_test(
+        name = "isort_{}".format(name),
+        size = "small",
+        srcs = ["@test_requirements_isort//:rules_python_wheel_entry_point_isort.py"],
+        main = "@test_requirements_isort//:rules_python_wheel_entry_point_isort.py",
+        data = [
+            ":_{}_data".format(name),
+            "//:pyproject.toml",
+        ],
+        args = [
+            "--check-only",
+            "$(rootpaths :_{}_data)".format(name),
+        ],
+        tags = ["lint", "isort"],
+        deps = [
+            "@test_requirements_isort//:rules_python_wheel_entry_point_isort",
         ],
     )
 
