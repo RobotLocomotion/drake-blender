@@ -8,6 +8,10 @@ set -eu -o pipefail
 me=$(python3 -c 'import os; print(os.path.realpath("'"$0"'"))')
 cd $(dirname "$me")
 
+./bazel run //:buildifier \
+    *.bazel \
+    *.bzl \
+    */*.bazel
 ./bazel build //:black
 ./.bazel/bin/black \
     bazel \

@@ -2,7 +2,8 @@
 
 load("@rules_python//python:defs.bzl", "py_test")
 
-def py_lint_test(name, srcs, *, use_black=True, use_codestyle=True):
+def py_lint_test(name, srcs, *, use_black = True, use_codestyle = True):
+    """Adds Python linter checks for the given `srcs`."""
     native.filegroup(
         name = "_{}_data".format(name),
         srcs = srcs,
@@ -17,7 +18,7 @@ def py_lint_test(name, srcs, *, use_black=True, use_codestyle=True):
         tags = ["lint", "pycodestyle"],
         deps = [
             "@test_requirements_pycodestyle//:rules_python_wheel_entry_point_pycodestyle",
-        ]
+        ],
     )
     (not use_black) or py_test(
         name = "black_{}".format(name),
@@ -37,5 +38,20 @@ def py_lint_test(name, srcs, *, use_black=True, use_codestyle=True):
         tags = ["lint", "black"],
         deps = [
             "@test_requirements_black//:rules_python_wheel_entry_point_black",
-        ]
+        ],
+    )
+
+def bazel_lint_test(name, srcs):
+    """Adds Bazel linter checks for the given `srcs`."""
+    locations = [
+        "$(location {})".format(src)
+        for src in srcs
+    ]
+    native.sh_test(
+        name = name,
+        size = "small",
+        srcs = ["//:buildifier"],
+        data = srcs,
+        args = ["-mode=check"] + locations,
+        tags = ["lint"],
     )
