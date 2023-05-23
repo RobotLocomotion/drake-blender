@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT-0
 
 # To compile this file into requirements.txt, run:
-# ./bazel run //examples:requirements.update -- --upgrade
+# ../requirements_upgrade.sh
 
 drake
 
