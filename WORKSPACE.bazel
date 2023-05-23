@@ -44,6 +44,36 @@ pip_parse(
     requirements_lock = "//examples:requirements.txt",
 )
 
+[
+    http_file(
+        name = name,
+        executable = True,
+        sha256 = sha256,
+        url = "https://github.com/bazelbuild/buildtools/releases/download/{}/{}".format(
+            "v6.1.2",
+            name,
+        ),
+    )
+    for name, sha256 in [
+        (
+            "buildifier-darwin-amd64",
+            "e2f4a67691c5f55634fbfb3850eb97dd91be0edd059d947b6c83d120682e0216",
+        ),
+        (
+            "buildifier-darwin-arm64",
+            "7549b5f535219ac957aa2a6069d46fbfc9ea3f74abd85fd3d460af4b1a2099a6",
+        ),
+        (
+            "buildifier-linux-amd64",
+            "51bc947dabb7b14ec6fb1224464fbcf7a7cb138f1a10a3b328f00835f72852ce",
+        ),
+        (
+            "buildifier-linux-arm64",
+            "0ba6e8e3208b5a029164e542ddb5509e618f87b639ffe8cc2f54770022853080",
+        ),
+    ]
+]
+
 load("@examples_requirements//:requirements.bzl", "install_deps")
 
 install_deps()
@@ -53,6 +83,7 @@ install_deps()
 # https://twitter.com/limarest_art.
 http_file(
     name = "color_attribute_painting",
+    sha256 = "443b213229a4c863b2015beff623a700886c14928707a2fb24a6dd85fd80a207",
     urls = [
         base + "/demo/sculpt_mode/color_attribute_painting.blend"
         for base in [
@@ -60,5 +91,4 @@ http_file(
             "https://mirror.clarkson.edu/blender",
         ]
     ],
-    sha256 = "443b213229a4c863b2015beff623a700886c14928707a2fb24a6dd85fd80a207",
 )

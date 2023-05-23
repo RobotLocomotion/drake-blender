@@ -2,7 +2,7 @@
 
 load("@rules_python//python:defs.bzl", "py_binary", "py_test")
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
-load("//:defs.bzl", "py_lint_test")
+load("//:defs.bzl", "bazel_lint_test", "py_lint_test")
 
 exports_files(glob(["**"]))
 
@@ -28,6 +28,13 @@ py_test(
     data = [
         ":ball_bin",
         ":test/bpy_use_cycles.py",
+    ],
+)
+
+bazel_lint_test(
+    name = "bazel_lint_test",
+    srcs = [
+        "BUILD.bazel",
     ],
 )
 
