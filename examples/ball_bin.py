@@ -235,16 +235,6 @@ def _wrapped_main():
 
 
 if __name__ == "__main__":
-    # Tell Drake it that even though it's running from Bazel it's not a source
-    # build so it needs to use resources from the wheel file not Bazel.
-    # TODO(jwnimmer-tri) As of Drake >= v1.16.0, this is no longer necessary.
-    os.environ["DRAKE_RESOURCE_ROOT"] = str(
-        _find_resource(
-            "examples_requirements_drake/site-packages/"
-            "pydrake/share/drake/package.xml"
-        ).parent.parent
-    )
-
     # Create output files in $PWD, not runfiles.
     if "BUILD_WORKING_DIRECTORY" in os.environ:
         os.chdir(os.environ["BUILD_WORKING_DIRECTORY"])
