@@ -70,6 +70,15 @@ py_binary(
     tags = ["manual"],
 )
 
+py_binary(
+    name = "isort",
+    testonly = True,
+    srcs = ["@test_requirements_isort//:rules_python_wheel_entry_point_isort.py"],
+    main = "@test_requirements_isort//:rules_python_wheel_entry_point_isort.py",
+    deps = ["@test_requirements_isort//:rules_python_wheel_entry_point_isort"],
+    tags = ["manual"],
+)
+
 compile_pip_requirements(
     name = "requirements",
     requirements_in = "requirements.in",

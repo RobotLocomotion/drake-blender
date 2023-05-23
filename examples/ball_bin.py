@@ -14,53 +14,43 @@ import dataclasses as dc
 import logging
 import os
 from pathlib import Path
-import time
-import typing
 import signal
 import socket
 import subprocess
 import tempfile
+import time
+import typing
 
 from bazel_tools.tools.python.runfiles import runfiles
-import tqdm
-
 from pydrake.common import configure_logging
 from pydrake.common.yaml import yaml_load_typed
 from pydrake.geometry.render import (
-    RenderEngineGltfClientParams,
-    RenderEngineVtkParams,
     MakeRenderEngineGltfClient,
     MakeRenderEngineVtk,
+    RenderEngineGltfClientParams,
+    RenderEngineVtkParams,
 )
 from pydrake.multibody.parsing import (
     ModelDirective,
     ModelDirectives,
     ProcessModelDirectives,
 )
-from pydrake.multibody.plant import (
-    AddMultibodyPlant,
-    MultibodyPlantConfig,
-)
+from pydrake.multibody.plant import AddMultibodyPlant, MultibodyPlantConfig
 from pydrake.systems.analysis import (
     ApplySimulatorConfig,
     Simulator,
     SimulatorConfig,
 )
-from pydrake.systems.framework import (
-    DiagramBuilder,
-)
-from pydrake.systems.lcm import (
-    LcmBuses,
-)
+from pydrake.systems.framework import DiagramBuilder
+from pydrake.systems.lcm import LcmBuses
 from pydrake.systems.sensors import (
     ApplyCameraConfig,
     CameraConfig,
     ImageWriter,
     PixelType,
 )
-from pydrake.visualization import (
-    VideoWriter,
-)
+from pydrake.visualization import VideoWriter
+import tqdm
 
 
 @dc.dataclass
