@@ -17,15 +17,26 @@ work with any Python interpreter that supports our `requirements.txt`.
 
 ## Running the render server
 
-From a git checkout of `drake-blender`:
+There are two ways to run the server.
+
+(1) From a git checkout of `drake-blender`:
 
 ```sh
 ./bazel run :server
 ```
 
-Note that `server.py` is self-contained. Instead of using Bazel, you can also
-run it as a standalone Python program so long as the `requirements.in` packages
-are available in your Python runtime environment.
+This way has no extra setup steps. It will automatically download the required
+dependencies into the Bazel sandbox, using the same versions as pinned by our
+requirements lockfile that is tested in our Continuous Integration build.
+
+(2) From your own virtual environment:
+
+The `server.py` file is self-contained -- it does not import any other files
+from drake-blender. Instead of using Bazel, you can also run it as a standalone
+Python program (`python3 server.py`) so long as the packages listed in our
+`requirements.in` are available in your Python runtime environment. You are
+responsible for preparing and activating an appropriate virtual environment on
+your own.
 
 ## Examples
 
