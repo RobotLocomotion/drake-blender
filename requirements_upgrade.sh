@@ -1,6 +1,10 @@
 #!/bin/bash
 
-# This script upgrades all of our lockfiles to the latest.
+# This script is intended for use by drake-blender developers.
+# Users of the project do not need to run it.
+
+# This script upgrades the pinned version of all dependencies, as captured
+# by the requirements.txt files that are commited into git.
 
 set -eu -o pipefail
 
