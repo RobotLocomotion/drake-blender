@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# This script is intended for use by drake-blender developers.
+# Users of the project do not need to run it.
+
 # This script runs the autoformatter(s) on all source files that are subject to
 # automated linter style checks.
 
