@@ -17,20 +17,20 @@ def py_lint_test(
     (not use_codestyle) or py_test(
         name = "pycodestyle_{}".format(name),
         size = "small",
-        srcs = ["@test_requirements_pycodestyle//:rules_python_wheel_entry_point_pycodestyle.py"],
-        main = "@test_requirements_pycodestyle//:rules_python_wheel_entry_point_pycodestyle.py",
+        srcs = ["//tools:pycodestyle_main.py"],
+        main = "//tools:pycodestyle_main.py",
         data = [":_{}_data".format(name)],
         args = ["$(rootpaths :_{}_data)".format(name)],
         tags = ["lint", "pycodestyle"],
         deps = [
-            "@test_requirements_pycodestyle//:rules_python_wheel_entry_point_pycodestyle",
+            "@test_requirements_pycodestyle//:pkg",
         ],
     )
     (not use_black) or py_test(
         name = "black_{}".format(name),
         size = "small",
-        srcs = ["@test_requirements_black//:rules_python_wheel_entry_point_black.py"],
-        main = "@test_requirements_black//:rules_python_wheel_entry_point_black.py",
+        srcs = ["//tools:black_main.py"],
+        main = "//tools:black_main.py",
         data = [
             ":_{}_data".format(name),
             "//:pyproject.toml",
@@ -43,15 +43,15 @@ def py_lint_test(
         ],
         tags = ["lint", "black"],
         deps = [
-            "@test_requirements_black//:rules_python_wheel_entry_point_black",
+            "@test_requirements_black//:pkg",
         ],
     )
 
     (not use_isort) or py_test(
         name = "isort_{}".format(name),
         size = "small",
-        srcs = ["@test_requirements_isort//:rules_python_wheel_entry_point_isort.py"],
-        main = "@test_requirements_isort//:rules_python_wheel_entry_point_isort.py",
+        srcs = ["//tools:isort_main.py"],
+        main = "//tools:isort_main.py",
         data = [
             ":_{}_data".format(name),
             "//:pyproject.toml",
@@ -62,7 +62,7 @@ def py_lint_test(
         ],
         tags = ["lint", "isort"],
         deps = [
-            "@test_requirements_isort//:rules_python_wheel_entry_point_isort",
+            "@test_requirements_isort//:pkg",
         ],
     )
 
@@ -75,7 +75,7 @@ def bazel_lint_test(name, srcs):
     native.sh_test(
         name = name,
         size = "small",
-        srcs = ["//:buildifier"],
+        srcs = ["//tools:buildifier"],
         data = srcs,
         args = ["-mode=check"] + locations,
         tags = ["lint"],

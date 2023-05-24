@@ -9,7 +9,7 @@
 set -eu -o pipefail
 
 me=$(python3 -c 'import os; print(os.path.realpath("'"$0"'"))')
-cd $(dirname "$me")
+cd $(dirname "$me")/..
 
 ./bazel run //:requirements.update -- --upgrade
 ./bazel run //:test_requirements.update -- --upgrade
