@@ -61,7 +61,7 @@ Check for lint:
 Fix all lint:
 
 ```sh
-./fix_lint.sh
+./tools/fix_lint.sh
 ```
 
 # Credits

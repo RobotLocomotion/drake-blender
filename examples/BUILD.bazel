@@ -2,7 +2,7 @@
 
 load("@rules_python//python:defs.bzl", "py_binary", "py_test")
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
-load("//:defs.bzl", "bazel_lint_test", "py_lint_test")
+load("//tools:defs.bzl", "bazel_lint_test", "py_lint_test")
 
 exports_files(glob(["**"]))
 
