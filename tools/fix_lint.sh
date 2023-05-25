@@ -9,19 +9,19 @@
 set -eu -o pipefail
 
 me=$(python3 -c 'import os; print(os.path.realpath("'"$0"'"))')
-cd $(dirname "$me")
+cd $(dirname "$me")/..
 
-./bazel run //:buildifier \
+./bazel run //tools:buildifier \
     *.bazel \
-    *.bzl \
-    */*.bazel
-./bazel build //:black //:isort
-./.bazel/bin/black \
+    */*.bazel \
+    */*.bzl
+./bazel build //tools:black //tools:isort
+./.bazel/bin/tools/black \
     bazel \
     *.py \
     */*.py \
     */*/*.py
-./.bazel/bin/isort \
+./.bazel/bin/tools/isort \
     bazel \
     *.py \
     */*.py \

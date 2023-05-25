@@ -2,7 +2,7 @@
 
 load("@rules_python//python:defs.bzl", "py_binary", "py_test")
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
-load(":defs.bzl", "bazel_lint_test", "py_lint_test")
+load("//tools:defs.bzl", "bazel_lint_test", "py_lint_test")
 
 exports_files([
     "pyproject.toml",
@@ -51,56 +51,11 @@ py_test(
     ],
 )
 
-config_setting(
-    name = "darwin-amd64",
-    constraint_values = [
-        "@platforms//os:osx",
-        "@platforms//cpu:x86_64",
-    ],
-)
-
-config_setting(
-    name = "darwin-arm64",
-    constraint_values = [
-        "@platforms//os:osx",
-        "@platforms//cpu:arm64",
-    ],
-)
-
-config_setting(
-    name = "linux-amd64",
-    constraint_values = [
-        "@platforms//os:linux",
-        "@platforms//cpu:x86_64",
-    ],
-)
-
-config_setting(
-    name = "linux-arm64",
-    constraint_values = [
-        "@platforms//os:linux",
-        "@platforms//cpu:arm64",
-    ],
-)
-
-alias(
-    name = "buildifier",
-    actual = select({
-        ":darwin-amd64": "@buildifier-darwin-amd64//file:downloaded",
-        ":darwin-arm64": "@buildifier-darwin-arm64//file:downloaded",
-        ":linux-amd64": "@buildifier-linux-amd64//file:downloaded",
-        ":linux-arm64": "@buildifier-linux-arm64//file:downloaded",
-        "//conditions:default": "@platforms//:incompatible",
-    }),
-    visibility = ["//:__subpackages__"],
-)
-
 bazel_lint_test(
     name = "bazel_lint_test",
     srcs = [
         "BUILD.bazel",
         "WORKSPACE.bazel",
-        "defs.bzl",
     ],
 )
 
@@ -112,24 +67,6 @@ py_lint_test(
         "test/server_test.py",
         "test/unittest_path_cleaner.py",
     ],
-)
-
-py_binary(
-    name = "black",
-    testonly = True,
-    srcs = ["@test_requirements_black//:rules_python_wheel_entry_point_black.py"],
-    main = "@test_requirements_black//:rules_python_wheel_entry_point_black.py",
-    tags = ["manual"],
-    deps = ["@test_requirements_black//:rules_python_wheel_entry_point_black"],
-)
-
-py_binary(
-    name = "isort",
-    testonly = True,
-    srcs = ["@test_requirements_isort//:rules_python_wheel_entry_point_isort.py"],
-    main = "@test_requirements_isort//:rules_python_wheel_entry_point_isort.py",
-    tags = ["manual"],
-    deps = ["@test_requirements_isort//:rules_python_wheel_entry_point_isort"],
 )
 
 compile_pip_requirements(
