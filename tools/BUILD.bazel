@@ -94,5 +94,6 @@ py_lint_test(
         "black_main.py",
         "isort_main.py",
         "pycodestyle_main.py",
+        "requirements_upgrade_bazel.py",
     ],
 )
