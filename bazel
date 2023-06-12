@@ -21,8 +21,9 @@ import urllib.request as request
 
 def _fetch_bazelisk():
     # Specify the file we want to fetch.
-    url = "https://raw.githubusercontent.com/bazelbuild/bazelisk/v1.16.0/bazelisk.py"  # noqa
-    sha256 = "1f6d76d023ddd5f1625f34d934418e7334a267318d084f31be09df8a8835ed16"
+    # TODO(jwnimmer-tri) Find a way to automate bumping this version number.
+    url = "https://raw.githubusercontent.com/bazelbuild/bazelisk/v1.17.0/bazelisk.py"  # noqa
+    sha256 = "94655ff9cb5286677ee56cd5ac2e82cb91be4385ceb790b0a83369bc79a796b9"
 
     # Create a home for it.
     dot_bazel = Path(__file__).resolve().with_name(".bazel")
@@ -47,7 +48,7 @@ def _fetch_bazelisk():
     hasher.update(content)
     digest = hasher.hexdigest()
     if digest != sha256:
-        raise RuntimeError(f"Got wrong sha256={sha256}")
+        raise RuntimeError(f"Got wrong sha256 {digest} but wanted {sha256}.")
     with open(bazelisk, "wb") as f:
         f.write(content)
     bazelisk.chmod(0o755)
