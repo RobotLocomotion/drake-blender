@@ -99,6 +99,7 @@ class Blender:
     ):
         self._blend_file = blend_file
         self._bpy_settings_file = bpy_settings_file
+        self._client_objects = None
 
     def reset_scene(self):
         """
@@ -138,14 +139,31 @@ class Blender:
                 code = compile(f.read(), self._bpy_settings_file, "exec")
                 exec(code, {"bpy": bpy}, dict())
 
+        self._client_objects = bpy.data.collections.new("ClientObjects")
+        old_count = len(bpy.data.objects)
         # Import a glTF file. Note that the Blender glTF importer imposes a
         # +90 degree rotation around the X-axis when loading meshes. Thus, we
         # counterbalance the rotation right after the glTF-loading.
-        # TODO(#39) This is very suspicious. Get to the bottom of it.
         bpy.ops.import_scene.gltf(filepath=str(params.scene))
+        new_count = len(bpy.data.objects)
+        # Reality check that all of the imported objects are selected by
+        # default.
+        assert new_count - old_count == len(bpy.context.selected_objects)
+
+        # TODO(#39) This rotation is very suspicious. Get to the bottom of it.
+        # We explicitly specify the pivot point for the rotation to allow for
+        # glTF files with root nodes with arbitrary positioning. We simply want
+        # to rotate around the world origin.
         bpy.ops.transform.rotate(
-            value=math.pi / 2, orient_axis="X", orient_type="GLOBAL"
+            value=math.pi / 2,
+            orient_axis="X",
+            orient_type="GLOBAL",
+            center_override=(0, 0, 0),
         )
+
+        # All imported objects get put in our "client objects" collection.
+        for obj in bpy.context.selected_objects:
+            self._client_objects.objects.link(obj)
 
         # Set rendering parameters.
         scene = bpy.context.scene
@@ -247,6 +265,13 @@ class Blender:
         world_nodes = bpy.data.worlds["World"].node_tree.nodes
         world_nodes["Background"].inputs[0].default_value = background_color
 
+        # Every object imported from the glTF file has been placed in a
+        # special collection; simply test for its presence.
+        assert self._client_objects is not None
+
+        def is_from_gltf(object):
+            return object.name in self._client_objects.objects
+
         # Iterate over all meshes and set their label values.
         for bpy_object in bpy.data.objects:
             assert bpy_object is not None
@@ -257,11 +282,10 @@ class Blender:
             if bpy_object.type != "MESH":
                 continue
 
-            # If a mesh is imported from a glTF, its parent node will be
-            # `Renderer Node`, and we will set its label value to its diffuse
-            # color. If a mesh is loaded from a blend file, its label value
-            # will be set to white (same as the background).
-            if bpy_object.parent.name == "Renderer Node":
+            # If a mesh is imported from a glTF, we will set its label value to
+            # its diffuse color. If a mesh is loaded from a blend file, its
+            # label value will be set to white (same as the background).
+            if is_from_gltf(bpy_object):
                 mesh_color = bpy_object.data.materials[0].diffuse_color
             else:
                 mesh_color = background_color
