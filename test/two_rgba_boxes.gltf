@@ -254,7 +254,7 @@
          "name" : "Camera Node"
       },
       {
-         "children" : [ 0, 1, 2 ],
+         "children" : [ 1, 2 ],
          "name" : "Renderer Node"
       }
    ],
@@ -263,7 +263,7 @@
    [
       {
          "name" : "Layer 0",
-         "nodes" : [ 3 ]
+         "nodes" : [ 0, 3 ]
       }
    ]
 }

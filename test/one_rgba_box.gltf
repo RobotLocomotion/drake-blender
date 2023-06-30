@@ -157,7 +157,7 @@
       },
       {
          "children" : [ 0, 1 ],
-         "name" : "Renderer Node"
+         "name" : "Root Node"
       }
    ],
    "scene" : 0,
