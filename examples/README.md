@@ -21,7 +21,7 @@ From the root directory of the drake-blender source checkout, run:
 $ ./bazel run //examples:ball_bin
 ```
 
-This will create a videos named blender_camera.mp4 and vtk_camera.mp4.
+This will create videos named blender_camera.mp4 and vtk_camera.mp4.
 The blender-rendered video will show the balls, bin, and room in the background.
 The VTK-rendered video will show only the balls and bin.
 Expect the video rendering to take 5 minutes or longer.
