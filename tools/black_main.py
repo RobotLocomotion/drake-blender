@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: BSD-2-Clause
+
 import sys
 
 from black import patched_main as _black_main

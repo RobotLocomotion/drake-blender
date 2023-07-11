@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: BSD-2-Clause
+
 import sys
 
 from isort.main import main as _isort_main

@@ -1,4 +1,5 @@
 #!/bin/bash
+# SPDX-License-Identifier: BSD-2-Clause
 
 # This script is intended for use by drake-blender developers.
 # Users of the project do not need to run it.
