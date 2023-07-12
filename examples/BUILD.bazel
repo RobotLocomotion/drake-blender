@@ -29,6 +29,7 @@ py_test(
         ":ball_bin",
         ":test/bpy_use_cycles.py",
     ],
+    deps = ["@examples_requirements_drake//:pkg"],
 )
 
 bazel_lint_test(

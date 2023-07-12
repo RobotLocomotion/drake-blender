@@ -24,7 +24,7 @@ import typing
 from bazel_tools.tools.python.runfiles import runfiles
 from pydrake.common import configure_logging
 from pydrake.common.yaml import yaml_load_typed
-from pydrake.geometry.render import (
+from pydrake.geometry import (
     MakeRenderEngineGltfClient,
     MakeRenderEngineVtk,
     RenderEngineGltfClientParams,
@@ -167,6 +167,14 @@ def main():
         "the initial conditions.",
     )
     parser.add_argument(
+        "--scenario_file",
+        type=Path,
+        default=None,
+        help="The absolute path to a scenario file to construct a simulation. "
+        "If not provided, `drake_blender/examples/ball_bin.yaml` will be used "
+        "by default.",
+    )
+    parser.add_argument(
         "--no-server",
         dest="server",
         action="store_false",
@@ -180,8 +188,9 @@ def main():
     )
     args = parser.parse_args()
 
-    scenario_file = _find_resource("drake_blender/examples/ball_bin.yaml")
-    setattr(args, "scenario_file", scenario_file)
+    if args.scenario_file is None:
+        scenario_file = _find_resource("drake_blender/examples/ball_bin.yaml")
+        setattr(args, "scenario_file", scenario_file)
 
     # Launch the server (if requested).
     if args.server:
