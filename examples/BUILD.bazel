@@ -28,6 +28,7 @@ py_test(
     data = [
         ":ball_bin",
         ":test/bpy_use_cycles.py",
+        ":test/test_scenario.yaml",
     ],
 )
 

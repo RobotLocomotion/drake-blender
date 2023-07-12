@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: MIT-0
+
+# A simplified scenario file based on `ball_bin.yaml` to aid testing.
+simulation_duration: 1.0
+directives:
+- add_model:
+    name: bin
+    file: package://drake/examples/manipulation_station/models/bin.sdf
+- add_weld:
+    parent: world
+    child: bin::bin_base
+    X_PC:
+      translation: [0, 0, 0.20]
+- add_model:
+    name: ball_1
+    file: package://drake/examples/manipulation_station/models/sphere.sdf
+    default_free_body_pose: { base_link: { translation: [0.08, 0.01, 0.3] } }
+cameras:
+  blender_camera:
+    name: blender_camera
+    renderer_name: blender
+    width: 100
+    height: 100
+    fps: 2.0
+    X_PB:
+      translation: [-4.0, -3.2, 4.8]
+      rotation: !Rpy { deg: [-130, 5, -55] }
+  vtk_camera:
+    name: vtk_camera
+    renderer_name: vtk
+    width: 100
+    height: 100
+    fps: 2.0
+    X_PB:
+      translation: [-4.0, -3.2, 4.8]
+      rotation: !Rpy { deg: [-130, 5, -55] }
