@@ -49,6 +49,8 @@ cameras:
   blender_camera:
     name: blender_camera
     renderer_name: blender
+    renderer_class: !RenderEngineGltfClientParams
+      base_url: http://127.0.0.1:8000
     width: 1024
     height: 1024
     fps: 8.0
@@ -58,6 +60,7 @@ cameras:
   vtk_camera:
     name: vtk_camera
     renderer_name: vtk
+    renderer_class: !RenderEngineVtkParams {}
     show_rgb: True  # Use a live on-screen preview.
     width: 1024
     height: 1024

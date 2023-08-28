@@ -1,15 +1,15 @@
 WORKSPACE_VERSIONS = {
     "buildifier": {
-        "version": "6.1.2",
+        "version": "6.3.3",
         "binaries": {
-            "buildifier-darwin-amd64": "e2f4a67691c5f55634fbfb3850eb97dd91be0edd059d947b6c83d120682e0216",
-            "buildifier-darwin-arm64": "7549b5f535219ac957aa2a6069d46fbfc9ea3f74abd85fd3d460af4b1a2099a6",
-            "buildifier-linux-amd64": "51bc947dabb7b14ec6fb1224464fbcf7a7cb138f1a10a3b328f00835f72852ce",
-            "buildifier-linux-arm64": "0ba6e8e3208b5a029164e542ddb5509e618f87b639ffe8cc2f54770022853080",
+            "buildifier-darwin-amd64": "3c36a3217bd793815a907a8e5bf81c291e2d35d73c6073914640a5f42e65f73f",
+            "buildifier-darwin-arm64": "9bb366432d515814766afcf6f9010294c13876686fbbe585d5d6b4ff0ca3e982",
+            "buildifier-linux-amd64": "42f798ec532c58e34401985043e660cb19d5ae994e108d19298c7d229547ffca",
+            "buildifier-linux-arm64": "6a03a1cf525045cb686fc67cd5d64cface5092ebefca3c4c93fb6e97c64e07db",
         },
     },
     "rules_python": {
-        "version": "0.19.0",
-        "sha256": "ffc7b877c95413c82bfd5482c017edcf759a6250d8b24e82f41f3c8b8d9e287e",
+        "version": "0.25.0",
+        "sha256": "5868e73107a8e85d8f323806e60cad7283f34b32163ea6ff1020cf27abef6036",
     },
 }
