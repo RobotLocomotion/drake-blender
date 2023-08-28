@@ -123,14 +123,12 @@ class Blender:
         """
         Renders the current scene with the given parameters.
         """
-        # Always reset the scene to start with.
-        self.reset_scene()
-
         # Load the blend file to set up the basic scene if provided; otherwise,
-        # a default lighting is added.
+        # the scene gets reset with default lighting.
         if self._blend_file is not None:
             bpy.ops.wm.open_mainfile(filepath=str(self._blend_file))
         else:
+            self.reset_scene()
             self.add_default_light_source()
 
         # Apply the user's custom settings.
@@ -183,7 +181,7 @@ class Blender:
         if camera is None:
             _logger.error(
                 "Camera node not found. Check the input glTF file "
-                f"'{params.input_path}'."
+                f"'{params.scene}'."
             )
             return
 
