@@ -18,14 +18,14 @@ from pathlib import Path
 import sys
 import urllib.request as request
 
+# The pinned version and checksum of bazelisk.
+_VERSION = "1.17.0"
+_SHA256 = "94655ff9cb5286677ee56cd5ac2e82cb91be4385ceb790b0a83369bc79a796b9"
+_URL = f"https://raw.githubusercontent.com/bazelbuild/bazelisk/v{_VERSION}/bazelisk.py"  # noqa
+
 
 def _fetch_bazelisk():
-    # Specify the file we want to fetch.
-    # TODO(jwnimmer-tri) Find a way to automate bumping this version number.
-    url = "https://raw.githubusercontent.com/bazelbuild/bazelisk/v1.17.0/bazelisk.py"  # noqa
-    sha256 = "94655ff9cb5286677ee56cd5ac2e82cb91be4385ceb790b0a83369bc79a796b9"
-
-    # Create a home for it.
+    # Create a home for our downloaded bazelisk.
     dot_bazel = Path(__file__).resolve().with_name(".bazel")
     dot_bazel.mkdir(exist_ok=True)
     bazelisk = dot_bazel / "bazelisk"
@@ -35,20 +35,20 @@ def _fetch_bazelisk():
         hasher = hashlib.sha256()
         with open(bazelisk, "rb") as f:
             hasher.update(f.read())
-        if hasher.hexdigest() == sha256:
+        if hasher.hexdigest() == _SHA256:
             return bazelisk
     except IOError:
         pass
 
     # Fetch it.
-    print(f"Downloading {url} ...")
-    with request.urlopen(url=url, timeout=10) as response:
+    print(f"Downloading {_URL} ...")
+    with request.urlopen(url=_URL, timeout=10) as response:
         content = response.read()
     hasher = hashlib.sha256()
     hasher.update(content)
     digest = hasher.hexdigest()
-    if digest != sha256:
-        raise RuntimeError(f"Got wrong sha256 {digest} but wanted {sha256}.")
+    if digest != _SHA256:
+        raise RuntimeError(f"Got wrong sha256 {digest} but wanted {_SHA256}.")
     with open(bazelisk, "wb") as f:
         f.write(content)
     bazelisk.chmod(0o755)
