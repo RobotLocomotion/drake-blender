@@ -24,12 +24,6 @@ import typing
 from bazel_tools.tools.python.runfiles import runfiles
 from pydrake.common import configure_logging
 from pydrake.common.yaml import yaml_load_typed
-from pydrake.geometry import (
-    MakeRenderEngineGltfClient,
-    MakeRenderEngineVtk,
-    RenderEngineGltfClientParams,
-    RenderEngineVtkParams,
-)
 from pydrake.multibody.parsing import (
     ModelDirective,
     ModelDirectives,
@@ -106,14 +100,6 @@ def _run(args):
         directives=ModelDirectives(directives=scenario.directives), plant=plant
     )
     plant.Finalize()
-
-    # Add remote rendering capability to scene graph.
-    blender_engine = MakeRenderEngineGltfClient(
-        RenderEngineGltfClientParams(base_url="http://127.0.0.1:8000")
-    )
-    scene_graph.AddRenderer("blender", blender_engine)
-    vtk_engine = MakeRenderEngineVtk(RenderEngineVtkParams())
-    scene_graph.AddRenderer("vtk", vtk_engine)
 
     # Add the camera(s).
     video_writers = []
