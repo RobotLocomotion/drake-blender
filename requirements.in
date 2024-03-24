@@ -3,5 +3,7 @@
 # To compile this file into requirements.txt, run:
 # ./tools/upgrade.sh
 
-bpy
+# TODO(jwnimmer-tri) When upgrading to blender 4.0, we'll need to figure out
+# how to make depth and label images work correctly.
+bpy==3.6.0
 flask
