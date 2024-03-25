@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
+# Don't use bzlmod yet.
+common --enable_bzlmod=false
+
 common --symlink_prefix=.bazel/
 common --keep_going=yes
 build --test_output=errors
@@ -7,6 +10,7 @@ build --test_summary=terse
 
 # Inject DISPLAY into test runner environment for tests that use X.
 build --test_env=DISPLAY
+build --sandbox_add_mount_pair=/tmp/.X11-unix
 
 # Add `bazel test --config=lint` shortcut for linting.
 build:lint --test_tag_filters=lint
