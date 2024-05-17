@@ -50,7 +50,7 @@ jobs:
       # * For subsequent builds of a PR, the first restore key, e.g.,
       #   "pip-refs/pull/###/merge-" should match the most recently saved PR key
       #   "pip-refs/pull/###/merge-####-#".
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v4
         with:
           path: ~/.cache/pip
           # N.B. The "-mumble" suffix below will never match; it's a placeholder
@@ -60,7 +60,7 @@ jobs:
           restore-keys: |
             pip-${{ github.ref }}-
             pip-refs/heads/main-
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v4
         with:
           path: ~/.cache/bazel_ci
           key: bazel_ci-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
@@ -80,12 +80,12 @@ jobs:
       # By default, actions/cache only saves after a successful workflow, but
       # our caches are bags of files where we only ever add new files (not change
       # an existing files), so it's always safe to snapshot.
-      - uses: actions/cache/save@v3
+      - uses: actions/cache/save@v4
         if: always()
         with:
           path: ~/.cache/pip
           key: pip-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
-      - uses: actions/cache/save@v3
+      - uses: actions/cache/save@v4
         if: always()
         with:
           path: ~/.cache/bazel_ci
