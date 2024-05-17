@@ -35,20 +35,17 @@ def _write_bazelisk_version(new, sha256):
 
 
 def _get_current_bazel_version() -> str:
-    """Parses ``.bazeliskrc`` for the old version of bazel."""
-    with open(".bazeliskrc", encoding="utf-8") as f:
+    """Parses ``.bazelversion`` for the old version of bazel."""
+    with open(".bazelversion", encoding="utf-8") as f:
         lines = f.read().splitlines()
-    line = lines[-1]
-    prefix = "USE_BAZEL_VERSION="
-    assert line.startswith(prefix), line
-    return line.removeprefix(prefix)
+    (line,) = lines
+    return line.strip()
 
 
 def _write_bazel_version(new):
-    """Overwrites ``.bazeliskrc`` with the new version of bazel."""
-    with open(".bazeliskrc", "w", encoding="utf-8") as f:
-        f.write("# SPDX-License-Identifier: BSD-2-Clause\n\n")
-        f.write(f"USE_BAZEL_VERSION={new}\n")
+    """Overwrites ``.bazelversion`` with the new version of bazel."""
+    with open(".bazelversion", "w", encoding="utf-8") as f:
+        f.write(f"{new}\n")
 
 
 def _get_current_workspace_versions():
