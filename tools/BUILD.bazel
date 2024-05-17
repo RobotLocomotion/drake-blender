@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 load("@rules_python//python:defs.bzl", "py_binary")
-load("//tools:defs.bzl", "bazel_lint_test", "py_lint_test")
+load("//tools:defs.bzl", "bazel_lint_test", "pip", "py_lint_test")
 
 exports_files([
     "black_main.py",
@@ -59,7 +59,7 @@ py_binary(
     srcs = ["black_main.py"],
     main = "black_main.py",
     tags = ["manual"],
-    deps = ["@test_requirements_black//:pkg"],
+    deps = [pip("black", "[test]")],
 )
 
 py_binary(
@@ -68,7 +68,7 @@ py_binary(
     srcs = ["pycodestyle_main.py"],
     main = "pycodestyle_main.py",
     tags = ["manual"],
-    deps = ["@test_requirements_pycodestyle//:pkg"],
+    deps = [pip("pycodestyle", "[test]")],
 )
 
 py_binary(
@@ -77,7 +77,7 @@ py_binary(
     srcs = ["isort_main.py"],
     main = "isort_main.py",
     tags = ["manual"],
-    deps = ["@test_requirements_isort//:pkg"],
+    deps = [pip("isort", "[test]")],
 )
 
 bazel_lint_test(

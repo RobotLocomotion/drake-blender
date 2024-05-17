@@ -21,7 +21,6 @@ import tempfile
 import time
 import typing
 
-from bazel_tools.tools.python.runfiles import runfiles
 from pydrake.common import configure_logging
 from pydrake.common.yaml import yaml_load_typed
 from pydrake.multibody.parsing import (
@@ -44,6 +43,7 @@ from pydrake.systems.sensors import (
     PixelType,
 )
 from pydrake.visualization import VideoWriter
+from python import runfiles
 import tqdm
 
 

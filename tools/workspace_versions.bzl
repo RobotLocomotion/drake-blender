@@ -8,8 +8,4 @@ WORKSPACE_VERSIONS = {
             "buildifier-linux-arm64": "1d9af1f6956a439fca2878a2fbf760b97ca5df00f669e5d1953beb0c4607ac71",
         },
     },
-    "rules_python": {
-        "version": "0.32.2",
-        "sha256": "4912ced70dc1a2a8e4b86cec233b192ca053e82bc72d877b98e126156e8f228d",
-    },
 }

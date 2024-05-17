@@ -2,7 +2,7 @@
 
 load("@rules_python//python:defs.bzl", "py_binary", "py_test")
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
-load("//tools:defs.bzl", "bazel_lint_test", "py_lint_test")
+load("//tools:defs.bzl", "bazel_lint_test", "pip", "py_lint_test")
 
 exports_files(glob(["**"]))
 
@@ -15,10 +15,10 @@ py_binary(
         "@color_attribute_painting//file",
     ],
     deps = [
-        "@bazel_tools//tools/python/runfiles",
-        "@examples_requirements_drake//:pkg",
-        "@examples_requirements_opencv_python//:pkg",
-        "@examples_requirements_tqdm//:pkg",
+        "@rules_python//python/runfiles",
+        pip("drake", "[examples]"),
+        pip("opencv_python", "[examples]"),
+        pip("tqdm", "[examples]"),
     ],
 )
 
@@ -29,7 +29,7 @@ py_test(
         ":ball_bin",
         ":test/bpy_use_cycles.py",
     ],
-    deps = ["@examples_requirements_drake//:pkg"],
+    deps = [pip("drake", "[examples]")],
 )
 
 bazel_lint_test(

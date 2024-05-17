@@ -141,28 +141,10 @@ def _upgrade_buildifier():
     _write_workspace_versions(workspace_versions)
 
 
-def _upgrade_rules_python():
-    """Upgrades rules_python to its latest version (if necessary)."""
-    workspace_versions = _get_current_workspace_versions()
-    old = workspace_versions["rules_python"]["version"]
-    new = _find_latest_github_release("bazelbuild/rules_python")
-    if new == old:
-        print(f"rules_python is already at the latest version {new}")
-        return
-    print(f"rules_python will be upgraded to version {new}")
-    workspace_versions["rules_python"]["version"] = new
-    releases = "https://github.com/bazelbuild/rules_python/releases"
-    workspace_versions["rules_python"]["sha256"] = _get_url_checksum(
-        f"{releases}/download/{new}/rules_python-{new}.tar.gz"
-    )
-    _write_workspace_versions(workspace_versions)
-
-
 def _main():
     _upgrade_bazelisk()
     _upgrade_bazel()
     _upgrade_buildifier()
-    _upgrade_rules_python()
 
 
 assert __name__ == "__main__"
