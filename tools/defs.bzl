@@ -1,6 +1,24 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
+load("@examples_requirements//:requirements.bzl", examples_requirement = "requirement")
+load("@requirements//:requirements.bzl", "requirement")
 load("@rules_python//python:defs.bzl", "py_test")
+load("@test_requirements//:requirements.bzl", test_requirement = "requirement")
+
+def pip(name, extra = None):
+    """Translates a pip package name to the bazel deps name.
+
+    The `extra` can be used to select which requirements.txt to use. When
+    None, uses the root `requirements.txt`. Otherwise can be `"[test]"` for
+    `test/requiremens.txt` or `"[examples]"` for `examples/requirements.txt`.
+    """
+    if not extra:
+        return requirement(name)
+    if extra == "[examples]":
+        return examples_requirement(name)
+    if extra == "[test]":
+        return test_requirement(name)
+    fail("Bad extra: " + repr(extra))
 
 def py_lint_test(
         name,
@@ -22,9 +40,7 @@ def py_lint_test(
         data = [":_{}_data".format(name)],
         args = ["$(rootpaths :_{}_data)".format(name)],
         tags = ["lint", "pycodestyle"],
-        deps = [
-            "@test_requirements_pycodestyle//:pkg",
-        ],
+        deps = [pip("pycodestyle", "[test]")],
     )
     (not use_black) or py_test(
         name = "black_{}".format(name),
@@ -42,9 +58,7 @@ def py_lint_test(
             "$(rootpaths :_{}_data)".format(name),
         ],
         tags = ["lint", "black"],
-        deps = [
-            "@test_requirements_black//:pkg",
-        ],
+        deps = [pip("black", "[test]")],
     )
 
     (not use_isort) or py_test(
@@ -61,9 +75,7 @@ def py_lint_test(
             "$(rootpaths :_{}_data)".format(name),
         ],
         tags = ["lint", "isort"],
-        deps = [
-            "@test_requirements_isort//:pkg",
-        ],
+        deps = [pip("isort", "[test]")],
     )
 
 def bazel_lint_test(name, srcs):

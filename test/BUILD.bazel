@@ -1,0 +1,52 @@
+# SPDX-License-Identifier: BSD-2-Clause
+
+load("@rules_python//python:defs.bzl", "py_test")
+load("@rules_python//python:pip.bzl", "compile_pip_requirements")
+load("//tools:defs.bzl", "bazel_lint_test", "pip", "py_lint_test")
+
+py_test(
+    name = "server_test",
+    srcs = ["server_test.py"],
+    data = [
+        "//:server",
+        # This texture file is a dependency for `one_texture_box.blend`.
+        "4_color_texture.png",
+        "depth.png",
+        "label.png",
+        # TODO(zachfang): Consider generating this image in the test code if
+        # it's easier to maintain for our future use cases.
+        "one_gltf_one_blend.label.png",
+        "one_rgba_box.gltf",
+        "one_rgba_one_texture_boxes.color.png",
+        "one_rgba_one_texture_boxes.gltf",
+        "one_texture_box.blend",
+        "two_rgba_boxes.color.png",
+        "two_rgba_boxes.gltf",
+    ],
+    deps = [
+        pip("numpy", "[test]"),
+        pip("pillow", "[test]"),
+        pip("requests", "[test]"),
+    ],
+)
+
+bazel_lint_test(
+    name = "bazel_lint_test",
+    srcs = [
+        "BUILD.bazel",
+    ],
+)
+
+py_lint_test(
+    name = "py_lint_test",
+    srcs = [
+        "server_test.py",
+    ],
+)
+
+compile_pip_requirements(
+    name = "requirements",
+    requirements_in = "requirements.in",
+    requirements_txt = "requirements.txt",
+    tags = ["manual"],
+)

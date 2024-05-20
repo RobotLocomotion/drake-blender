@@ -1,11 +1,5 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
-# isort: off
-
-import test.unittest_path_cleaner  # Disable Ubuntu packages.
-
-# isort: on
-
 from collections import namedtuple
 import datetime
 import json

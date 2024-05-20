@@ -1,0 +1,21 @@
+# -*- bazel -*-
+# SPDX-License-Identifier: BSD-2-Clause
+
+# This file provides dependencies that are not yet resolve-able via the bzlmod
+# module system. TODO(jwnimmer-tri) move this into MODULE.bazel as possible.
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
+load("//tools:workspace_versions.bzl", "WORKSPACE_VERSIONS")
+
+[
+    http_file(
+        name = name,
+        executable = True,
+        sha256 = sha256,
+        url = "https://github.com/bazelbuild/buildtools/releases/download/v{}/{}".format(
+            WORKSPACE_VERSIONS["buildifier"]["version"],
+            name,
+        ),
+    )
+    for name, sha256 in WORKSPACE_VERSIONS["buildifier"]["binaries"].items()
+]

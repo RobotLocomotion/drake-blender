@@ -1,8 +1,5 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
-# Don't use bzlmod yet.
-common --enable_bzlmod=false
-
 common --symlink_prefix=.bazel/
 common --keep_going=yes
 build --test_output=errors

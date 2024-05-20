@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
-load("@rules_python//python:defs.bzl", "py_binary", "py_test")
+load("@rules_python//python:defs.bzl", "py_binary")
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
-load("//tools:defs.bzl", "bazel_lint_test", "py_lint_test")
+load("//tools:defs.bzl", "bazel_lint_test", "pip", "py_lint_test")
 
 exports_files([
     "pyproject.toml",
@@ -14,40 +14,8 @@ py_binary(
     srcs = ["server.py"],
     visibility = ["//visibility:public"],
     deps = [
-        "@requirements_bpy//:pkg",
-        "@requirements_flask//:pkg",
-    ],
-)
-
-py_library(
-    name = "unittest_path_cleaner",
-    srcs = ["test/unittest_path_cleaner.py"],
-)
-
-py_test(
-    name = "server_test",
-    srcs = ["test/server_test.py"],
-    data = [
-        ":server",
-        # This texture file is a dependency for `one_texture_box.blend`.
-        "test/4_color_texture.png",
-        "test/depth.png",
-        "test/label.png",
-        # TODO(zachfang): Consider generating this image in the test code if
-        # it's easier to maintain for our future use cases.
-        "test/one_gltf_one_blend.label.png",
-        "test/one_rgba_box.gltf",
-        "test/one_rgba_one_texture_boxes.color.png",
-        "test/one_rgba_one_texture_boxes.gltf",
-        "test/one_texture_box.blend",
-        "test/two_rgba_boxes.color.png",
-        "test/two_rgba_boxes.gltf",
-    ],
-    deps = [
-        ":unittest_path_cleaner",
-        "@test_requirements_numpy//:pkg",
-        "@test_requirements_pillow//:pkg",
-        "@test_requirements_requests//:pkg",
+        pip("bpy"),
+        pip("flask"),
     ],
 )
 
@@ -55,7 +23,8 @@ bazel_lint_test(
     name = "bazel_lint_test",
     srcs = [
         "BUILD.bazel",
-        "WORKSPACE.bazel",
+        "MODULE.bazel",
+        "WORKSPACE.bzlmod",
     ],
 )
 
@@ -64,8 +33,6 @@ py_lint_test(
     srcs = [
         "bazel",
         "server.py",
-        "test/server_test.py",
-        "test/unittest_path_cleaner.py",
     ],
 )
 
@@ -73,12 +40,5 @@ compile_pip_requirements(
     name = "requirements",
     requirements_in = "requirements.in",
     requirements_txt = "requirements.txt",
-    tags = ["manual"],
-)
-
-compile_pip_requirements(
-    name = "test_requirements",
-    requirements_in = "test/requirements.in",
-    requirements_txt = "test/requirements.txt",
     tags = ["manual"],
 )
