@@ -19,8 +19,8 @@ import sys
 import urllib.request as request
 
 # The pinned version and checksum of bazelisk.
-_VERSION = "1.21.0"
-_SHA256 = "ccccb2b572de591ad72783a471005a5ce5489ab9f4be36d014e798933ad6dd6d"
+_VERSION = "1.22.1"
+_SHA256 = "cba873b7a873b4ee545749fdc3c30dd56475348e2d64858bb37aa6c640e1be04"
 _URL = f"https://raw.githubusercontent.com/bazelbuild/bazelisk/v{_VERSION}/bazelisk.py"  # noqa
 
 
