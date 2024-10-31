@@ -13,6 +13,9 @@ class BallBinTest(unittest.TestCase):
         self.tmpdir = Path(os.environ["TEST_TMPDIR"])
         self.assertTrue(self.tmpdir.exists(), self.tmpdir)
 
+        self.out_dir = Path(os.environ["TEST_UNDECLARED_OUTPUTS_DIR"])
+        self.assertTrue(self.out_dir.exists(), self.out_dir)
+
         # Find the demo.
         demo_path = Path("examples/ball_bin").absolute().resolve()
         self.assertTrue(demo_path.exists(), demo_path)
@@ -71,10 +74,10 @@ class BallBinTest(unittest.TestCase):
             f"--scenario_file={scenario_file}",
         ]
 
-        result = subprocess.run(run_args, cwd=self.tmpdir)
+        result = subprocess.run(run_args, cwd=self.out_dir)
         result.check_returncode()
-        self.assertTrue((self.tmpdir / "vtk_camera.png").exists())
-        self.assertTrue((self.tmpdir / "blender_camera.png").exists())
+        self.assertTrue((self.out_dir / "vtk_camera.png").exists())
+        self.assertTrue((self.out_dir / "blender_camera.png").exists())
 
     def test_video(self):
         """Checks that the example creates 2x video files."""
@@ -82,10 +85,10 @@ class BallBinTest(unittest.TestCase):
 
         run_args = self.default_run_args + [f"--scenario_file={scenario_file}"]
 
-        result = subprocess.run(run_args, cwd=self.tmpdir)
+        result = subprocess.run(run_args, cwd=self.out_dir)
         result.check_returncode()
-        self.assertTrue((self.tmpdir / "vtk_camera.mp4").exists())
-        self.assertTrue((self.tmpdir / "blender_camera.mp4").exists())
+        self.assertTrue((self.out_dir / "vtk_camera.mp4").exists())
+        self.assertTrue((self.out_dir / "blender_camera.mp4").exists())
 
 
 if __name__ == "__main__":
