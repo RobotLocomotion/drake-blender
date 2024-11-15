@@ -60,8 +60,10 @@ cameras:
   vtk_camera:
     name: vtk_camera
     renderer_name: vtk
-    renderer_class: !RenderEngineVtkParams {}
-    show_rgb: True  # Use a live on-screen preview.
+    renderer_class: !RenderEngineVtkParams
+      backend: EGL
+    # For `show_rgb: True` you must also set the `backend: GLX` on prior line.
+    show_rgb: False
     width: 1024
     height: 1024
     fps: 8.0
