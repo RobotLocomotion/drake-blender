@@ -5,6 +5,10 @@ common --keep_going=yes
 build --test_output=errors
 build --test_summary=terse
 
+# TODO(jwnimmer-tri) For the moment, we still need WORKSPACE.bzlmod.
+# Once we can delete that file, we should remove the next line as well.
+common --enable_workspace=true
+
 # Add `bazel test --config=lint` shortcut for linting.
 build:lint --test_tag_filters=lint
 
