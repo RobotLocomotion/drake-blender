@@ -84,8 +84,9 @@ bazel_lint_test(
     name = "bazel_lint_test",
     srcs = [
         "BUILD.bazel",
+        "buildifier_repositories.bzl",
+        "buildifier_version.bzl",
         "defs.bzl",
-        "workspace_versions.bzl",
     ],
 )
 

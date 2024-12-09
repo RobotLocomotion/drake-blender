@@ -24,7 +24,6 @@ bazel_lint_test(
     srcs = [
         "BUILD.bazel",
         "MODULE.bazel",
-        "WORKSPACE.bzlmod",
     ],
 )
 
