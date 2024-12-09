@@ -49,3 +49,9 @@ http_file(
         ]
     ],
 )
+
+buildifier_repositories = use_extension("//tools:buildifier_repositories.bzl", "buildifier_repositories")
+use_repo(buildifier_repositories, "buildifier-darwin-amd64")
+use_repo(buildifier_repositories, "buildifier-darwin-arm64")
+use_repo(buildifier_repositories, "buildifier-linux-amd64")
+use_repo(buildifier_repositories, "buildifier-linux-arm64")

@@ -13,7 +13,7 @@ me=$(python3 -c 'import os; print(os.path.realpath("'"$0"'"))')
 cd $(dirname "$me")/..
 
 python3 -B ./tools/upgrade_helper.py
-./bazel run //tools:buildifier tools/workspace_versions.bzl
+./bazel run //tools:buildifier tools/buildifier_version.bzl
 
 ./bazel run //:requirements.update -- --upgrade
 ./bazel run //examples:requirements.update -- --upgrade

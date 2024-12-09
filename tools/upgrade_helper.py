@@ -48,22 +48,22 @@ def _write_bazel_version(new):
         f.write(f"{new}\n")
 
 
-def _get_current_workspace_versions():
-    """Parses ``workspace_versions.bzl`` for the old versions."""
-    with open("tools/workspace_versions.bzl", encoding="utf-8") as f:
+def _get_current_buildifier_version():
+    """Parses ``buildifier_version.bzl`` for the old version."""
+    with open("tools/buildifier_version.bzl", encoding="utf-8") as f:
         content = f.read()
-    prefix = "WORKSPACE_VERSIONS = "
+    prefix = "BUILDIFIER_VERSION = "
     assert content.startswith(prefix)
     return ast.literal_eval(content.removeprefix(prefix))
 
 
-def _write_workspace_versions(new):
-    """Overwrites ``workspace_versions.bzl`` with the new versions.
+def _write_buildifier_version(new):
+    """Overwrites ``buildifier_version.bzl`` with the new version.
     We assume that tools/update.sh will run buildifier formatting afterwards.
     """
-    prefix = "WORKSPACE_VERSIONS = "
+    prefix = "BUILDIFIER_VERSION = "
     content = prefix + pformat(new, width=1, sort_dicts=False)
-    with open("tools/workspace_versions.bzl", "w", encoding="utf-8") as f:
+    with open("tools/buildifier_version.bzl", "w", encoding="utf-8") as f:
         f.write(content)
 
 
@@ -111,39 +111,27 @@ def _upgrade_bazelisk():
     _write_bazelisk_version(new, sha256)
 
 
-def _upgrade_bazel():
-    """Upgrades bazel to its latest version (if necessary)."""
-    old = _get_current_bazel_version()
-    new = _find_latest_github_release("bazelbuild/bazel")
-    if new == old:
-        print(f"bazel is already at the latest version {new}")
-        return
-    print(f"bazel will be upgraded to version {new}")
-    _write_bazel_version(new)
-
-
 def _upgrade_buildifier():
     """Upgrades buildifier to its latest version (if necessary)."""
-    workspace_versions = _get_current_workspace_versions()
-    old = workspace_versions["buildifier"]["version"]
+    buildifier_version = _get_current_buildifier_version()
+    old = buildifier_version["version"]
     new = _find_latest_github_release("bazelbuild/buildtools")
     if new == old:
         print(f"buildifier is already at the latest version {new}")
         return
     print(f"buildifier will be upgraded to version {new}")
-    workspace_versions["buildifier"]["version"] = new
-    names = list(workspace_versions["buildifier"]["binaries"].keys())
+    buildifier_version["version"] = new
+    names = list(buildifier_version["binaries"].keys())
     releases = "https://github.com/bazelbuild/buildtools/releases"
     for name in names:
-        workspace_versions["buildifier"]["binaries"][name] = _get_url_checksum(
+        buildifier_version["binaries"][name] = _get_url_checksum(
             f"{releases}/download/v{new}/{name}"
         )
-    _write_workspace_versions(workspace_versions)
+    _write_buildifier_version(buildifier_version)
 
 
 def _main():
     _upgrade_bazelisk()
-    _upgrade_bazel()
     _upgrade_buildifier()
 
 
