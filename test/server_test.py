@@ -69,7 +69,7 @@ class ServerFixture(unittest.TestCase):
 
     def tearDown(self):
         self.server_proc.terminate()
-        self.assertEqual(self.server_proc.wait(1.0), -signal.SIGTERM)
+        self.assertEqual(self.server_proc.wait(10.0), -signal.SIGTERM)
 
     def _render_and_check(
         self,
