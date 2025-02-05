@@ -3,4 +3,5 @@
 set -euxo pipefail
 
 # Rendering in CI (for both Drake and Blender) requires a GL pipeline.
+sudo apt-get update
 sudo apt-get --assume-yes install libegl1
