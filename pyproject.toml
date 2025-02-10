@@ -4,6 +4,8 @@
 [project]
 name = "drake-blender"
 version = "0.2.1"
+# NOTE TO MAINTAINERS: when editing this list, you must copy the identical
+# update into requirements.in as well.
 dependencies = [
     "bpy==3.6.0",
     "flask"
