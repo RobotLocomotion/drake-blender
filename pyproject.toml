@@ -1,5 +1,17 @@
 # SPDX-License-Identifier: BSD-2-Clause
-# Contains configuration settings for linting Python.
+
+[project]
+name = "drake-blender"
+version = "0.2.1.dev0"
+# NOTE TO MAINTAINERS: when editing this list, you must copy the identical
+# update into requirements.in as well.
+dependencies = [
+    "bpy==3.6.0",
+    "flask"
+]
+
+[project.scripts]
+drake-blender-server = "server:main"
 
 [tool.black]
 line-length = 79
