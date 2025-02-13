@@ -17,19 +17,42 @@ work with any Python interpreter that supports our `requirements.txt`.
 
 ## Running the render server
 
-There are two ways to run the server.
+There are three ways to run the server.
 
-(1) From a git checkout of `drake-blender`:
+(1) From pip:
+
+Ensure you are using a virtual environment:
+```sh
+python3 -m venv env
+```
+
+Install into the virtual environment, either from a release tag or from the
+development branch:
+
+(a) Using a release tag:
+```sh
+env/bin/pip install https://github.com/RobotLocomotion/drake-blender/archive/refs/tags/v0.2.1.zip
+env/bin/drake-blender-server --help
+```
+
+(b) Using the development branch:
 
 ```sh
-./bazel run :server
+env/bin/pip install https://github.com/RobotLocomotion/drake-blender/archive/refs/heads/main.zip
+env/bin/drake-blender-server --help
+```
+
+(2) From a git checkout of `drake-blender`:
+
+```sh
+./bazel run :server -- --help
 ```
 
 This way has no extra setup steps. It will automatically download the required
 dependencies into the Bazel sandbox, using the same versions as pinned by our
 requirements lockfile that is tested in our Continuous Integration build.
 
-(2) From your own virtual environment:
+(3) From your own virtual environment:
 
 The `server.py` file is self-contained -- it does not import any other files
 from drake-blender. Instead of using Bazel, you can also run it as a standalone
