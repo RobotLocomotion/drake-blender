@@ -2,7 +2,7 @@
 
 [project]
 name = "drake-blender"
-version = "0.2.1"
+version = "0.2.1.dev0"
 # NOTE TO MAINTAINERS: when editing this list, you must copy the identical
 # update into requirements.in as well.
 dependencies = [
