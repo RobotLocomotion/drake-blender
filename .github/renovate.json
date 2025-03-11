@@ -3,7 +3,12 @@
   "extends": [
     "config:recommended"
   ],
-  "python": {
-    "enabled": false
-  }
+  "packageRules": [
+    {
+      "matchCategories": [
+        "python"
+      ],
+      "enabled": false
+    }
+  ]
 }
