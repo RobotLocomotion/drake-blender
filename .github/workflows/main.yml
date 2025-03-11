@@ -95,11 +95,14 @@ jobs:
           key: bazel_ci-${{ github.ref }}-${{ github.run_number }}-${{ github.run_attempt }}
   install_test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python_version: ["3.10"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: ${{ matrix.python_version }}
           cache: "pip"
       - run: pip install .
       - run: drake-blender-server --help
