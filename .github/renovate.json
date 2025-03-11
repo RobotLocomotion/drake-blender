@@ -3,6 +3,9 @@
   "extends": [
     "config:recommended"
   ],
+  "actions/python-versions": {
+    "enabled": false
+  },
   "python": {
     "enabled": false
   }
