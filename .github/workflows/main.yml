@@ -104,5 +104,5 @@ jobs:
         with:
           python-version: ${{ matrix.python_version }}
           cache: "pip"
-      - run: pip install .
+      - run: pip install . --extra-index-url https://download.blender.org/pypi/
       - run: drake-blender-server --help

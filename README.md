@@ -61,6 +61,10 @@ Python program (`python3 server.py`) so long as the packages listed in our
 responsible for preparing and activating an appropriate virtual environment on
 your own.
 
+Known issue: our required version of Blender is no longer published to PyPI.
+When invoking `pip` by hand, you must add the blender archive
+(`--extra-index-url https://download.blender.org/pypi/`) to your command.
+
 ## Examples
 
 See [examples](examples/README.md).
