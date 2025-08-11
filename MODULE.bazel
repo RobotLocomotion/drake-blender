@@ -3,7 +3,7 @@
 module(name = "drake_blender")
 
 bazel_dep(name = "platforms", version = "1.0.0")
-bazel_dep(name = "rules_python", version = "1.5.1")
+bazel_dep(name = "rules_python", version = "1.5.2")
 
 # For the most part, a given version of Blender only supports exactly one
 # version of Python, so we'll pin ourselves to exactly that version.
