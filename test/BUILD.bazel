@@ -12,6 +12,7 @@ py_test(
         # This texture file is a dependency for `one_texture_box.blend`.
         "4_color_texture.png",
         "depth.png",
+        "depth_clipped.png",
         "label.png",
         # TODO(zachfang): Consider generating this image in the test code if
         # it's easier to maintain for our future use cases.

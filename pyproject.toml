@@ -6,7 +6,7 @@ version = "0.2.1.dev0"
 # NOTE TO MAINTAINERS: when editing this list, you must copy the identical
 # update into requirements.in as well.
 dependencies = [
-    "bpy==3.6.0",
+    "bpy==4.5.1",
     "flask"
 ]
 
