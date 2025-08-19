@@ -78,6 +78,8 @@ class ServerFixture(unittest.TestCase):
         reference_image_path,
         threshold,
         invalid_fraction=INVALID_PIXEL_FRACTION,
+        min_depth=None,
+        max_depth=None,
     ):
         """The implementation of the per-pixel image differencing on a specific
         image_type. It first renders an image by calling the server, compares
@@ -85,7 +87,11 @@ class ServerFixture(unittest.TestCase):
         of the rendered image.
         """
         with open(gltf_path, "rb") as scene:
-            form_data = self._create_request_form(image_type=image_type)
+            form_data = self._create_request_form(
+                image_type=image_type,
+                min_depth=min_depth,
+                max_depth=max_depth,
+            )
             response = requests.post(
                 url=f"http://127.0.0.1:{self.server_port}/render",
                 data=form_data,
@@ -107,11 +113,13 @@ class ServerFixture(unittest.TestCase):
             reference_image_path,
             threshold,
             invalid_fraction,
+            f"Rendered image: {rendered_image_path.name} vs "
+            f"{reference_image_path}",
         )
         return rendered_image_path
 
     @staticmethod
-    def _create_request_form(*, image_type):
+    def _create_request_form(*, image_type, min_depth=None, max_depth=None):
         # These properties are used when rendering the ground truth images. The
         # Blender server should use the same setting for testing.
         form_data = {
@@ -129,8 +137,8 @@ class ServerFixture(unittest.TestCase):
             "center_y": "239.5",
         }
         if image_type == "depth":
-            form_data["min_depth"] = 0.01
-            form_data["max_depth"] = 10.0
+            form_data["min_depth"] = 0.01 if min_depth is None else min_depth
+            form_data["max_depth"] = 10.0 if max_depth is None else max_depth
         return form_data
 
     def _assert_images_equal(
@@ -139,6 +147,7 @@ class ServerFixture(unittest.TestCase):
         reference_image_path,
         threshold,
         invalid_fraction,
+        error_message,
     ):
         # Compare the output image to the ground truth image (from git).
         test = np.array(Image.open(rendered_image_path))
@@ -149,7 +158,9 @@ class ServerFixture(unittest.TestCase):
         )
 
         image_diff_fraction = np.count_nonzero(image_diff) / image_diff.size
-        self.assertLessEqual(image_diff_fraction, invalid_fraction)
+        self.assertLessEqual(
+            image_diff_fraction, invalid_fraction, error_message
+        )
 
 
 class RpcOnlyServerTest(ServerFixture):
@@ -171,6 +182,33 @@ class RpcOnlyServerTest(ServerFixture):
             image_type="depth",
             reference_image_path="test/depth.png",
             threshold=DEPTH_PIXEL_THRESHOLD,
+        )
+
+    def test_depth_render_clipped(self):
+        """Tests the conditions where the geometry extends beyond the depth
+        sensor's [min_depth, max_depth] range.
+
+        Note: the output image is difficult to interpret. Compared to depth.png
+        two things can be noted:
+
+            1. depth_clipped.png shows fewer dark pixels; the portions of the
+               boxes farthest from the camera are now labeled as "too far" --
+               the same as the rest of the background.
+            2. Harder to see, the "near" pixels are set to a perfect black
+               color. This cannot be discerned visually (the distinction
+               between the black and the near black is too fine for the human
+               eye). It *can* be observed programmatically or in image editing
+               software by playing with the "levels" (IYKYK).
+        """
+        self._render_and_check(
+            gltf_path=DEFAULT_GLTF_FILE,
+            image_type="depth",
+            reference_image_path="test/depth_clipped.png",
+            threshold=DEPTH_PIXEL_THRESHOLD,
+            # Due to the statistical nature of the image equality test, small
+            # changes to depth range will test equal.
+            min_depth=0.32,  # Test will fail with min_depth <= 0.31
+            max_depth=0.33,  # Test will fail with max_depth >= 0.35
         )
 
     def test_label_render(self):

@@ -5,7 +5,7 @@
 
 black
 isort
-numpy
+numpy==1.26.4
 pillow
 pycodestyle
 requests
