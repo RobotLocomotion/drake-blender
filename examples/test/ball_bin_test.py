@@ -79,13 +79,20 @@ class BallBinTest(unittest.TestCase):
         # Add the arg, `--still`, to switch to image creation.
         run_args = self.default_run_args + [
             "--still",
+            "--color",
+            "--depth",
+            "--label",
             f"--scenario_file={scenario_file}",
         ]
 
         result = subprocess.run(run_args, cwd=self.out_dir)
         result.check_returncode()
-        self.assertTrue((self.out_dir / "vtk_camera.png").exists())
-        self.assertTrue((self.out_dir / "blender_camera.png").exists())
+        self.assertTrue((self.out_dir / "vtk_camera_color.png").exists())
+        self.assertTrue((self.out_dir / "blender_camera_color.png").exists())
+        self.assertTrue((self.out_dir / "vtk_camera_label.png").exists())
+        self.assertTrue((self.out_dir / "blender_camera_label.png").exists())
+        self.assertTrue((self.out_dir / "vtk_camera_depth.png").exists())
+        self.assertTrue((self.out_dir / "blender_camera_depth.png").exists())
 
     def test_video(self):
         """Checks that the example creates 2x video files."""
@@ -93,7 +100,10 @@ class BallBinTest(unittest.TestCase):
             nerf_function=self._small_video
         )
 
-        run_args = self.default_run_args + [f"--scenario_file={scenario_file}"]
+        run_args = self.default_run_args + [
+            f"--scenario_file={scenario_file}",
+            "--color",
+        ]
 
         result = subprocess.run(run_args, cwd=self.out_dir)
         result.check_returncode()
@@ -107,7 +117,12 @@ class BallBinTest(unittest.TestCase):
             nerf_function=self._no_rendering
         )
 
-        run_args = self.default_run_args + [f"--scenario_file={scenario_file}"]
+        run_args = self.default_run_args + [
+            f"--scenario_file={scenario_file}",
+            # Note: we have to specify *some* output so that ball_bin will run
+            # the dynamics at all.
+            "--color",
+        ]
 
         result = subprocess.run(run_args, cwd=self.out_dir)
         result.check_returncode()

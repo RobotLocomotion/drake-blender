@@ -18,7 +18,7 @@ https://github.com/RobotLocomotion/drake-blender/assets/17596505/c0f5f6ae-db51-4
 From the root directory of the drake-blender source checkout, run:
 
 ```sh
-$ ./bazel run //examples:ball_bin
+$ ./bazel run //examples:ball_bin -- --color
 ```
 
 This will create videos named blender_camera.mp4 and vtk_camera.mp4.
@@ -29,8 +29,13 @@ Expect the video rendering to take 5 minutes or longer.
 To create a single photo instead of a movie, use `--still`:
 
 ```sh
-$ ./bazel run //examples:ball_bin -- --still
+$ ./bazel run //examples:ball_bin -- --still  --color
 ```
+
+Note: these create a still or video with the color image from the camera,
+respectively. Passing `--label` or `--depth` will include the label or depth
+images as well. At least one of `--color`, `--depth`, or `--label` must be
+specified.
 
 Thanks to Ramil Roosileht (https://twitter.com/limarest_art) for creating
 the blender scene we use (from https://www.blender.org/download/demo-files/).
