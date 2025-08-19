@@ -7,7 +7,7 @@ bazel_dep(name = "rules_python", version = "1.5.3")
 
 # For the most part, a given version of Blender only supports exactly one
 # version of Python, so we'll pin ourselves to exactly that version.
-PYTHON_VERSION = "3.10"
+PYTHON_VERSION = "3.11"
 
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
 python.toolchain(python_version = PYTHON_VERSION)

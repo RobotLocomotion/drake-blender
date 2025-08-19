@@ -57,6 +57,8 @@ cameras:
     X_PB:
       translation: [-4.0, -3.2, 4.8]
       rotation: !Rpy { deg: [-130, 5, -55] }
+    z_far: 10
+    z_near: 0.1
   vtk_camera:
     name: vtk_camera
     renderer_name: vtk
@@ -71,3 +73,5 @@ cameras:
     X_PB:
       translation: [-4.0, -3.2, 4.8]
       rotation: !Rpy { deg: [-130, 5, -55] }
+    z_far: 10
+    z_near: 0.1

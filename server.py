@@ -186,20 +186,11 @@ class Blender:
             return
 
         scene.camera = camera
-        camera.data.show_sensor = True
-        # Set the clipping planes using {min, max}_depth when rendering depth
-        # images; otherwise, `near` and `far` are set for color and label
-        # images.
-        # TODO(#38) This clipping logic fails to implement kTooClose.
-        # When there is geometry in the range [near, min], we should return
-        # zero (i.e., too close). As is, it will return non-zero. Fix the code
-        # here and add regression tests for both too-close and -far.
-        camera.data.clip_start = (
-            params.min_depth if params.min_depth else params.near
-        )
-        camera.data.clip_end = (
-            params.max_depth if params.max_depth else params.far
-        )
+        # By default, the clipping planes are configured to near and far; for
+        # depth we may tweak them (see below).
+        camera.data.clip_start = params.near
+        camera.data.clip_end = params.far
+
         # See: https://www.rojtberg.net/1601/from-Blender-to-opencv-camera-and-back/.  # noqa: E501
         camera.data.shift_x = -1.0 * (params.center_x / params.width - 0.5)
         camera.data.shift_y = (
@@ -214,44 +205,128 @@ class Blender:
         if params.image_type == "color":
             scene.render.image_settings.color_mode = "RGBA"
             scene.render.image_settings.color_depth = "8"
-        elif params.image_type == "depth":
-            scene.render.image_settings.color_mode = "BW"
-            scene.render.image_settings.color_depth = "16"
-            # NOTE: Display device is set to 'None' because the pixel values of
-            # the image are meant to be interpreted as depth measurements. By
-            # default, Blender applies a filter that changes the values.
-            scene.display_settings.display_device = "None"
-            self.depth_render_settings(params.min_depth, params.max_depth)
-        else:  # image_type == "label".
-            scene.render.image_settings.color_mode = "RGBA"
-            scene.render.image_settings.color_depth = "8"
-            scene.display_settings.display_device = "None"
-            self.label_render_settings()
+        else:
+            # NOTE: For depth and label, we don't want to remap the computed
+            # values based on perceptual color space. It _may_ appear that the
+            # setting display_device to "sRGB" would trigger a mapping to
+            # perceptual color space, however the "Raw" view_transform value
+            # keeps the rendered result in linear space.
+            scene.display_settings.display_device = "sRGB"
+            scene.view_settings.view_transform = "Raw"
+            # Also disable anti-aliasing for both depth and label.
+            bpy.context.scene.render.filter_size = 0
+            if params.image_type == "depth":
+                # Note: typical RenderEngine implementations in Drake use the
+                # near/far range for the camera clipping. For depth it is
+                # actually more efficient to set clip_end to the minimum of far
+                # and max_depth (this maximizes the precision in the depth
+                # map).
+                depth_far = min(params.far, params.max_depth)
+
+                # Blender has an additional gotcha. We can't explicitly set the
+                # depth map's background color (which we typically set to the
+                # "too far" value). Blender automatically initializes it to the
+                # _clipping_ far value. We can't decouple them. So, we have to
+                # pick a clipping far value that will allow us to distinguish
+                # between "valid" depth returns and too value. So, we set the
+                # clipping far value epsilon beyond what we consider to be the
+                # most distant value we will accept. We then will add
+                # compositor machinery to saturate depth returns greater than
+                # the target value to "too far" (see depth_render_settings()).
+                camera.data.clip_end = depth_far * 1.001
+                scene.render.image_settings.color_mode = "BW"
+                scene.render.image_settings.color_depth = "16"
+                self.depth_render_settings(params.min_depth, depth_far)
+            else:  # image_type == "label".
+                scene.render.image_settings.color_mode = "RGBA"
+                scene.render.image_settings.color_depth = "8"
+                self.label_render_settings()
 
         # Render the image.
-        bpy.ops.render.render(write_still=True)
+        bpy.ops.render.render(write_still=True, animation=False)
 
     def depth_render_settings(self, min_depth, max_depth):
-        # Turn anti-aliasing off.
-        bpy.context.scene.render.filter_size = 0
+        scene = bpy.context.scene
 
-        world_nodes = bpy.data.worlds["World"].node_tree.nodes
-        # Set the background.
-        world_nodes["Background"].inputs[0].default_value = (
-            _UINT16_MAX,
-            _UINT16_MAX,
-            _UINT16_MAX,
-            1,
+        scene.use_nodes = True
+        nodes = scene.node_tree.nodes
+        links = scene.node_tree.links
+        # Clear all nodes before starting anew.
+        nodes.clear()
+        # The rendering source (with the Depth output enabled).
+        render_layers = nodes.new("CompositorNodeRLayers")
+        bpy.context.view_layer.use_pass_z = True
+        # The rendering endpoint; this gets saved to disk.
+        composite = nodes.new("CompositorNodeComposite")
+
+        # This does several things:
+        #   1. Maps meters to millimeters.
+        #   2. Normalizes on the maximum range in a 16-bit depth map.
+        #   3. Clamps to the admissible range.
+        map_value = nodes.new("CompositorNodeMapValue")
+        map_value.name = "SequeezeToDepth16U"
+        map_value.use_min = True
+        map_value.use_max = True
+        map_value.size = [1000 / _UINT16_MAX]
+        map_value.min = [0]
+        map_value.max = [1.0]
+
+        # Mask out all values that are "too far" and saturate them above the
+        # maximum 16-bit range (they'll clamp down to 1.0)
+        too_far = nodes.new("ShaderNodeMath")
+        too_far.name = "TooFarDetector"
+        too_far.operation = "GREATER_THAN"
+        too_far.inputs[1].default_value = max_depth
+
+        far_saturator = nodes.new("ShaderNodeMath")
+        far_saturator.name = "SaturateTooFar"
+        far_saturator.operation = "MULTIPLY_ADD"
+        far_saturator.inputs[1].default_value = (_UINT16_MAX + 1) / 1000
+
+        # Mask out all values that are too close and saturate them below zero
+        # (they'll clamp up to zero).
+        too_close = nodes.new("ShaderNodeMath")
+        too_close.name = "TooCloseDetector"
+        too_close.operation = "LESS_THAN"
+        too_close.inputs[1].default_value = min_depth
+
+        close_saturator = nodes.new("ShaderNodeMath")
+        close_saturator.name = "SaturateTooClose"
+        close_saturator.operation = "MULTIPLY_ADD"
+        close_saturator.inputs[1].default_value = -2 * min_depth
+
+        # Wire in "too far" detector.
+        links.new(
+            render_layers.outputs.get("Depth"), too_far.inputs.get("Value")
+        )
+        links.new(
+            too_far.outputs.get("Value"), far_saturator.inputs.get("Value")
+        )
+        # The "addend" input on far_saturator cannot be accessed via name.
+        links.new(render_layers.outputs.get("Depth"), far_saturator.inputs[2])
+
+        # Wire in "too close" detector.
+        links.new(
+            far_saturator.outputs.get("Value"), too_close.inputs.get("Value")
+        )
+        links.new(
+            too_close.outputs.get("Value"), close_saturator.inputs.get("Value")
+        )
+        # The "addend" input on close_saturator cannot be accessed via name.
+        links.new(
+            far_saturator.outputs.get("Value"), close_saturator.inputs[2]
         )
 
-        # Update the render method to use depth image.
-        self.create_depth_node_layer(min_depth, max_depth)
+        # Squeeze down to 16-bit and output.
+        links.new(
+            close_saturator.outputs.get("Value"), map_value.inputs.get("Value")
+        )
+        links.new(
+            map_value.outputs.get("Value"), composite.inputs.get("Image")
+        )
 
     def label_render_settings(self):
         scene = bpy.context.scene
-
-        # Turn anti-aliasing off.
-        scene.render.filter_size = 0
 
         # Set dither to zero because the 8-bit color image tries to create a
         # better perceived transition in color where there is a limited
@@ -302,44 +377,6 @@ class Blender:
                 rendered_surface.inputs["Surface"],
             )
             unlit_flat_mesh_color.inputs["Color"].default_value = mesh_color
-
-    def create_depth_node_layer(self, min_depth=0.01, max_depth=10.0):
-        """
-        Creates a node layer to render depth images.
-        """
-        # Get node and node tree.
-        bpy.context.scene.use_nodes = True
-        nodes = bpy.data.scenes["Scene"].node_tree.nodes
-        links = bpy.data.scenes["Scene"].node_tree.links
-
-        # Clear all nodes before adding necessary nodes.
-        nodes.clear()
-        render_layers = nodes.new("CompositorNodeRLayers")
-        composite = nodes.new("CompositorNodeComposite")
-        map_value = nodes.new("CompositorNodeMapValue")
-
-        # Convert depth measurements via a MapValueNode. The depth values are
-        # measured in meters, and thus they are converted to millimeters first.
-        # Blender scales the pixel values by 65535 (2^16 -1) when producing a
-        # UINT16 image, so we need to offset that to get the correct UINT16
-        # depth.
-        assert (
-            max_depth * 1000 / _UINT16_MAX <= 1.0
-        ), f"Provided max_depth '{max_depth}' overflows an UINT16 depth image"
-        map_value.use_min = True
-        map_value.use_max = True
-        map_value.size = [1000 / _UINT16_MAX]
-        map_value.min = [min_depth * 1000 / _UINT16_MAX]
-        map_value.max = [1.0]
-
-        # Make links to a depth image.
-        bpy.data.scenes["Scene"].view_layers["ViewLayer"].use_pass_z = True
-        links.new(
-            render_layers.outputs.get("Depth"), map_value.inputs.get("Value")
-        )
-        links.new(
-            map_value.outputs.get("Value"), composite.inputs.get("Image")
-        )
 
 
 class ServerApp(flask.Flask):
