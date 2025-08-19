@@ -32,5 +32,11 @@ To create a single photo instead of a movie, use `--still`:
 $ ./bazel run //examples:ball_bin -- --still
 ```
 
+Note: these create a still or video with the color image from the camera,
+respectively. That is the default behavior. You can also access the label and
+depth images as well. Passing `--color`, `--depth`, or `--label` parameters will
+render the corresponding image types. Any or all of them can be specified.
+Specifying none is equivalent so specifying only `--color`.
+
 Thanks to Ramil Roosileht (https://twitter.com/limarest_art) for creating
 the blender scene we use (from https://www.blender.org/download/demo-files/).
