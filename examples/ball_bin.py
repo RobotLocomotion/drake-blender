@@ -94,7 +94,9 @@ def _run(args):
     # Create the scene.
     builder = DiagramBuilder()
     plant, scene_graph = AddMultibodyPlant(
-        config=MultibodyPlantConfig(), builder=builder
+        config=MultibodyPlantConfig(
+            discrete_contact_approximation="similar",
+        ), builder=builder
     )
     added_models = ProcessModelDirectives(
         directives=ModelDirectives(directives=scenario.directives), plant=plant
