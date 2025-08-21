@@ -1,9 +1,9 @@
 BUILDIFIER_VERSION = {
-    "version": "7.3.1",
+    "version": "8.2.1",
     "binaries": {
-        "buildifier-darwin-amd64": "375f823103d01620aaec20a0c29c6cbca99f4fd0725ae30b93655c6704f44d71",
-        "buildifier-darwin-arm64": "5a6afc6ac7a09f5455ba0b89bd99d5ae23b4174dc5dc9d6c0ed5ce8caac3f813",
-        "buildifier-linux-amd64": "5474cc5128a74e806783d54081f581662c4be8ae65022f557e9281ed5dc88009",
-        "buildifier-linux-arm64": "0bf86c4bfffaf4f08eed77bde5b2082e4ae5039a11e2e8b03984c173c34a561c",
+        "buildifier-darwin-amd64": "9f8cffceb82f4e6722a32a021cbc9a5344b386b77b9f79ee095c61d087aaea06",
+        "buildifier-darwin-arm64": "cfab310ae22379e69a3b1810b433c4cd2fc2c8f4a324586dfe4cc199943b8d5a",
+        "buildifier-linux-amd64": "6ceb7b0ab7cf66fceccc56a027d21d9cc557a7f34af37d2101edb56b92fcfa1a",
+        "buildifier-linux-arm64": "3baa1cf7eb41d51f462fdd1fff3a6a4d81d757275d05b2dd5f48671284e9a1a5",
     },
 }
