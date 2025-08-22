@@ -42,7 +42,11 @@ from pydrake.systems.sensors import (
     ImageWriter,
     PixelType,
 )
-from pydrake.visualization import VideoWriter
+from pydrake.visualization import (
+    ColorizeDepthImage,
+    ColorizeLabelImage,
+    VideoWriter,
+)
 from python import runfiles
 import tqdm
 
@@ -101,6 +105,37 @@ def _run(args):
     )
     plant.Finalize()
 
+    def add_still(port_name: str, base_name: str, writer: ImageWriter):
+        image_type = port_name.split("_")[0]
+        writer.DeclareImageInputPort(
+            pixel_type=PixelType.kRgba8U,
+            port_name=port_name,
+            file_name_format=f"./{base_name}_{image_type}",
+            publish_period=1.0,
+            start_time=0.0,
+        )
+        image_port = None
+        if port_name == "depth_image_16u":
+            colorizer = builder.AddSystem(ColorizeDepthImage())
+            builder.Connect(
+                sensor.GetOutputPort(port_name),
+                colorizer.GetInputPort(port_name),
+            )
+            image_port = colorizer.get_output_port()
+        elif port_name == "label_image":
+            colorizer = builder.AddSystem(ColorizeLabelImage())
+            builder.Connect(
+                sensor.GetOutputPort(port_name),
+                colorizer.get_input_port(),
+            )
+            image_port = colorizer.get_output_port()
+        elif port_name == "color_image":
+            image_port = sensor.GetOutputPort(port_name)
+        builder.Connect(
+            image_port,
+            writer.GetInputPort(port_name),
+        )
+
     # Add the camera(s).
     video_writers = []
     for _, camera in scenario.cameras.items():
@@ -111,21 +146,32 @@ def _run(args):
         sensor = builder.GetSubsystemByName(f"rgbd_sensor_{name}")
         if args.still:
             writer = builder.AddSystem(ImageWriter())
-            writer.DeclareImageInputPort(
-                pixel_type=PixelType.kRgba8U,
-                port_name="color_image",
-                file_name_format=f"./{name}",
-                publish_period=1.0,
-                start_time=0.0,
-            )
-            builder.Connect(
-                sensor.GetOutputPort("color_image"),
-                writer.GetInputPort("color_image"),
-            )
+            if args.color:
+                add_still(
+                    port_name="color_image", base_name=name, writer=writer
+                )
+            if args.depth:
+                add_still(
+                    port_name="depth_image_16u", base_name=name, writer=writer
+                )
+            if args.label:
+                add_still(
+                    port_name="label_image", base_name=name, writer=writer
+                )
         else:
+            kinds = []
+            if args.color:
+                kinds.append("color")
+            if args.depth:
+                kinds.append("depth")
+            if args.label:
+                kinds.append("label")
+            assert len(kinds) > 0, "At least one image type must be specified."
             writer = VideoWriter(filename=f"{name}.mp4", fps=16, backend="cv2")
             builder.AddSystem(writer)
-            writer.ConnectRgbdSensor(builder=builder, sensor=sensor)
+            writer.ConnectRgbdSensor(
+                builder=builder, sensor=sensor, kinds=kinds
+            )
             video_writers.append(writer)
 
     # Create the simulator.
@@ -172,11 +218,32 @@ def main():
         help="This flag is forward along to the server, unchanged. "
         "Refer to its documentation for details.",
     )
+    parser.add_argument(
+        "--color",
+        action="store_true",
+        help="If true, stores the color image. If none of --color, --depth, "
+        "or --label are specified, it is the same as --color.",
+    )
+    parser.add_argument(
+        "--depth",
+        action="store_true",
+        help="If true, stores the depth image. If none of --color, --depth, "
+        "or --label are specified, it is the same as --color.",
+    )
+    parser.add_argument(
+        "--label",
+        action="store_true",
+        help="If true, stores the label image. If none of --color, --depth, "
+        "or --label are specified, it is the same as --color.",
+    )
     args = parser.parse_args()
 
     if args.scenario_file is None:
         scenario_file = _find_resource("drake_blender/examples/ball_bin.yaml")
         setattr(args, "scenario_file", scenario_file)
+
+    if not (args.color or args.depth or args.label):
+        args.color = True
 
     # Launch the server (if requested).
     if args.server:

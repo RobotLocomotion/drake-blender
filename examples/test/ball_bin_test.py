@@ -76,16 +76,24 @@ class BallBinTest(unittest.TestCase):
         """Checks that the example creates 2x still image files."""
         scenario_file = self._get_scenario_file(nerf_function=None)
 
-        # Add the arg, `--still`, to switch to image creation.
+        # Add the arg, `--still`, to switch to image creation. We're also
+        # using this to implicitly test all image type flags.
         run_args = self.default_run_args + [
             "--still",
+            "--color",
+            "--depth",
+            "--label",
             f"--scenario_file={scenario_file}",
         ]
 
         result = subprocess.run(run_args, cwd=self.out_dir)
         result.check_returncode()
-        self.assertTrue((self.out_dir / "vtk_camera.png").exists())
-        self.assertTrue((self.out_dir / "blender_camera.png").exists())
+        self.assertTrue((self.out_dir / "vtk_camera_color.png").exists())
+        self.assertTrue((self.out_dir / "blender_camera_color.png").exists())
+        self.assertTrue((self.out_dir / "vtk_camera_label.png").exists())
+        self.assertTrue((self.out_dir / "blender_camera_label.png").exists())
+        self.assertTrue((self.out_dir / "vtk_camera_depth.png").exists())
+        self.assertTrue((self.out_dir / "blender_camera_depth.png").exists())
 
     def test_video(self):
         """Checks that the example creates 2x video files."""
@@ -93,6 +101,8 @@ class BallBinTest(unittest.TestCase):
             nerf_function=self._small_video
         )
 
+        # We're implicitly testing the "render color if nothing is said"
+        # behavior.
         run_args = self.default_run_args + [f"--scenario_file={scenario_file}"]
 
         result = subprocess.run(run_args, cwd=self.out_dir)
