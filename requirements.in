@@ -9,10 +9,5 @@
 # TODO(jwnimmer-tri) Figure out how to keep only a single copy of our list
 # of dependencies.
 
+bpy==4.5.1
 flask
-
-# TODO(drake-blender#66) For now, we must use blender < v4.0.0 because depth and
-# label images don't work correctly with 4.0. Also, because 3.6.0 has aged out
-# of PyPI, we also add this blender archive URL until we can upgrade.
---extra-index-url https://download.blender.org/pypi/
-bpy==3.6.0

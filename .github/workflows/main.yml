@@ -97,12 +97,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python_version: ["3.10"]
+        python_version: ["3.11"]
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python_version }}
           cache: "pip"
-      - run: pip install . --extra-index-url https://download.blender.org/pypi/
+      - run: pip install .
       - run: drake-blender-server --help
