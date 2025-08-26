@@ -5,7 +5,11 @@
 
 black
 isort
-numpy
+# Blender itself limits numpy to less than 2.0, but we're otherwise using
+# python 3.11, which defaults to a version greater than 2.0. Until blender
+# upgrades, we're staying with it.
+# https://github.com/blender/blender/blob/51db47149186146708d8c9546931600364730708/build_files/utils/make_bpy_wheel.py#L259-L262
+numpy<2.0
 pillow
 pycodestyle
 requests

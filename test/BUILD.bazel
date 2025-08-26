@@ -6,12 +6,14 @@ load("//tools:defs.bzl", "bazel_lint_test", "pip", "py_lint_test")
 
 py_test(
     name = "server_test",
+    size = "large",
     srcs = ["server_test.py"],
     data = [
         "//:server",
         # This texture file is a dependency for `one_texture_box.blend`.
         "4_color_texture.png",
         "depth.png",
+        "depth_clipped.png",
         "label.png",
         # TODO(zachfang): Consider generating this image in the test code if
         # it's easier to maintain for our future use cases.
