@@ -9,6 +9,7 @@ bazel_dep(name = "rules_python", version = "1.7.0")
 # version of Python, so we'll pin ourselves to exactly that version.
 PYTHON_VERSION = "3.11"
 
+# TODO: Remove this line after GHA succeeds
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
 python.toolchain(python_version = PYTHON_VERSION)
 use_repo(python, "python_versions")
