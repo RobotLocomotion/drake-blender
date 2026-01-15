@@ -20,10 +20,10 @@ jobs:
       # Cache python dependencies with setup-python.
       # Uses the hash of the dependency file (pyproject.toml or requirements.txt)
       # as part of the cache key. For pip, this caches the global cache directory.
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.11"
-          cache: "pip"
+      # - uses: actions/setup-python@v6
+        # with:
+        #   python-version: "3.11"
+          # cache: "pip"
       # Use setup-bazel for disk and repository caching.
       - uses: bazel-contrib/setup-bazel@0.15.0
         with:
