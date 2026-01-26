@@ -17,13 +17,6 @@ jobs:
       - uses: actions/checkout@v6
       - name: Install Ubuntu dependencies
         run: .github/ci_setup.bash
-      # Cache python dependencies with setup-python.
-      # Uses the hash of the dependency file (pyproject.toml or requirements.txt)
-      # as part of the cache key. For pip, this caches the global cache directory.
-      # - uses: actions/setup-python@v6
-        # with:
-        #   python-version: "3.11"
-          # cache: "pip"
       # Use setup-bazel for disk and repository caching.
       - uses: bazel-contrib/setup-bazel@0.15.0
         with:
@@ -42,6 +35,13 @@ jobs:
           repository-cache: ""
           # This dumps configuration details to the log.
           bazelrc: common --announce_rc=yes
+      # Cache python dependencies with setup-python.
+      # Uses the hash of the dependency file (pyproject.toml or requirements.txt)
+      # as part of the cache key. For pip, this caches the global cache directory.
+      - uses: actions/setup-python@v6
+        # with:
+        #   python-version: "3.11"
+          # cache: "pip"
       # Actual testing.
       - name: Bazel Test
         run: |
