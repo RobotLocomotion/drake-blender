@@ -40,7 +40,7 @@ jobs:
       # as part of the cache key. For pip, this caches the global cache directory.
       - uses: actions/setup-python@v6
         with:
-        #   python-version: "3.11"
+          python-version: "3.11"
           cache: "pip"
       # Actual testing.
       - name: Bazel Test
