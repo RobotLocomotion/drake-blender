@@ -3,6 +3,7 @@
 load("@examples_requirements//:requirements.bzl", examples_requirement = "requirement")
 load("@requirements//:requirements.bzl", "requirement")
 load("@rules_python//python:defs.bzl", "py_test")
+load("@rules_shell//shell:sh_test.bzl", "sh_test")
 load("@test_requirements//:requirements.bzl", test_requirement = "requirement")
 
 def pip(name, extra = None):
@@ -84,7 +85,7 @@ def bazel_lint_test(name, srcs):
         "$(location {})".format(src)
         for src in srcs
     ]
-    native.sh_test(
+    sh_test(
         name = name,
         size = "small",
         srcs = ["//tools:buildifier"],
