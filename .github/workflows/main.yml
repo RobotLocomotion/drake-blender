@@ -41,7 +41,7 @@ jobs:
           ./bazel test //...
       # Save the test outputs to allow for eyeball verification when relevant.
       - name: Archive test outputs
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: test_outputs
           path: |
