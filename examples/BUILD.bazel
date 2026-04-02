@@ -24,6 +24,7 @@ py_binary(
 
 py_test(
     name = "ball_bin_test",
+    size = "large",
     srcs = ["test/ball_bin_test.py"],
     data = [
         ":ball_bin",
